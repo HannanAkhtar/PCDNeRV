@@ -1,0 +1,89 @@
+================================================================================================================================================================
+Sparse Structure Report: proxgl_conv_lprox5e+01_seed1
+Group unit: post-shuffle channel (r^2 conv rows + their biases) — group sparsity is a DIAGNOSTIC; physical pruning reports are the source of truth for compression.
+================================================================================================================================================================
+Global summary | targeted channel-groups: 0/114 (0.00%) | decoder+head params: 0/346450 (0.00%) | trainable params: 0/622210 (0.00%)
+Sparse param composition | targeted: 0/0 (0.00%) | non-targeted: 0/0 (0.00%)
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Layer                                            Scope        Targeted  Grouping                   ParamSparse/Total      ParamSpar% GroupSparse/Total  GroupSpar%
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+encoder.downsample_layers.0.0.weight             encoder      False                                0/3072                       0.00 -                        0.00
+encoder.downsample_layers.0.0.bias               encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.0.1.weight             encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.0.1.bias               encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.1.0.weight             encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.1.0.bias               encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.1.1.weight             encoder      False                                0/65536                      0.00 -                        0.00
+encoder.downsample_layers.1.1.bias               encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.2.0.weight             encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.2.0.bias               encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.2.1.weight             encoder      False                                0/36864                      0.00 -                        0.00
+encoder.downsample_layers.2.1.bias               encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.3.0.weight             encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.3.0.bias               encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.3.1.weight             encoder      False                                0/16384                      0.00 -                        0.00
+encoder.downsample_layers.3.1.bias               encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.4.0.weight             encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.4.0.bias               encoder      False                                0/64                         0.00 -                        0.00
+encoder.downsample_layers.4.1.weight             encoder      False                                0/4096                       0.00 -                        0.00
+encoder.downsample_layers.4.1.bias               encoder      False                                0/16                         0.00 -                        0.00
+encoder.stages.0.0.gamma                         encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.0.0.dwconv.weight                 encoder      False                                0/3136                       0.00 -                        0.00
+encoder.stages.0.0.dwconv.bias                   encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.0.0.norm.weight                   encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.0.0.norm.bias                     encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.0.0.pwconv1.weight                encoder      False                                0/16384                      0.00 -                        0.00
+encoder.stages.0.0.pwconv1.bias                  encoder      False                                0/256                        0.00 -                        0.00
+encoder.stages.0.0.pwconv2.weight                encoder      False                                0/16384                      0.00 -                        0.00
+encoder.stages.0.0.pwconv2.bias                  encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.1.0.gamma                         encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.1.0.dwconv.weight                 encoder      False                                0/3136                       0.00 -                        0.00
+encoder.stages.1.0.dwconv.bias                   encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.1.0.norm.weight                   encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.1.0.norm.bias                     encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.1.0.pwconv1.weight                encoder      False                                0/16384                      0.00 -                        0.00
+encoder.stages.1.0.pwconv1.bias                  encoder      False                                0/256                        0.00 -                        0.00
+encoder.stages.1.0.pwconv2.weight                encoder      False                                0/16384                      0.00 -                        0.00
+encoder.stages.1.0.pwconv2.bias                  encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.2.0.gamma                         encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.2.0.dwconv.weight                 encoder      False                                0/3136                       0.00 -                        0.00
+encoder.stages.2.0.dwconv.bias                   encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.2.0.norm.weight                   encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.2.0.norm.bias                     encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.2.0.pwconv1.weight                encoder      False                                0/16384                      0.00 -                        0.00
+encoder.stages.2.0.pwconv1.bias                  encoder      False                                0/256                        0.00 -                        0.00
+encoder.stages.2.0.pwconv2.weight                encoder      False                                0/16384                      0.00 -                        0.00
+encoder.stages.2.0.pwconv2.bias                  encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.3.0.gamma                         encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.3.0.dwconv.weight                 encoder      False                                0/3136                       0.00 -                        0.00
+encoder.stages.3.0.dwconv.bias                   encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.3.0.norm.weight                   encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.3.0.norm.bias                     encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.3.0.pwconv1.weight                encoder      False                                0/16384                      0.00 -                        0.00
+encoder.stages.3.0.pwconv1.bias                  encoder      False                                0/256                        0.00 -                        0.00
+encoder.stages.3.0.pwconv2.weight                encoder      False                                0/16384                      0.00 -                        0.00
+encoder.stages.3.0.pwconv2.bias                  encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.4.0.gamma                         encoder      False                                0/16                         0.00 -                        0.00
+encoder.stages.4.0.dwconv.weight                 encoder      False                                0/784                        0.00 -                        0.00
+encoder.stages.4.0.dwconv.bias                   encoder      False                                0/16                         0.00 -                        0.00
+encoder.stages.4.0.norm.weight                   encoder      False                                0/16                         0.00 -                        0.00
+encoder.stages.4.0.norm.bias                     encoder      False                                0/16                         0.00 -                        0.00
+encoder.stages.4.0.pwconv1.weight                encoder      False                                0/1024                       0.00 -                        0.00
+encoder.stages.4.0.pwconv1.bias                  encoder      False                                0/64                         0.00 -                        0.00
+encoder.stages.4.0.pwconv2.weight                encoder      False                                0/1024                       0.00 -                        0.00
+encoder.stages.4.0.pwconv2.bias                  encoder      False                                0/16                         0.00 -                        0.00
+decoder.0.conv.downconv.weight                   fc_stem      False                                0/608                        0.00 -                        0.00
+decoder.0.conv.downconv.bias                     fc_stem      False                                0/38                         0.00 -                        0.00
+decoder.1.conv.upconv.0.weight                   conv_blocks  True      r=4, 32 ch-groups          0/19456                      0.00 0/32                     0.00
+decoder.1.conv.upconv.0.bias                     conv_blocks  True      in weight groups           0/512                        0.00 -                        0.00
+decoder.2.conv.upconv.0.weight                   conv_blocks  True      r=4, 27 ch-groups          0/124416                     0.00 0/27                     0.00
+decoder.2.conv.upconv.0.bias                     conv_blocks  True      in weight groups           0/432                        0.00 -                        0.00
+decoder.3.conv.upconv.0.weight                   conv_blocks  True      r=3, 22 ch-groups          0/133650                     0.00 0/22                     0.00
+decoder.3.conv.upconv.0.bias                     conv_blocks  True      in weight groups           0/198                        0.00 -                        0.00
+decoder.4.conv.upconv.0.weight                   conv_blocks  True      r=2, 18 ch-groups          0/39600                      0.00 0/18                     0.00
+decoder.4.conv.upconv.0.bias                     conv_blocks  True      in weight groups           0/72                         0.00 -                        0.00
+decoder.5.conv.upconv.0.weight                   conv_blocks  True      r=2, 15 ch-groups          0/27000                      0.00 0/15                     0.00
+decoder.5.conv.upconv.0.bias                     conv_blocks  True      in weight groups           0/60                         0.00 -                        0.00
+head_layer.weight                                head         False                                0/405                        0.00 -                        0.00
+head_layer.bias                                  head         False                                0/3                          0.00 -                        0.00
+================================================================================================================================================================

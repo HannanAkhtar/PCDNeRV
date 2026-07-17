@@ -1,0 +1,48 @@
+============================================================================================================================================================
+Physical Pruning Report (budget mode): baseline_seed1
+Generated: 2026-07-16 13:57:45 | vid=bunny_smoke | method=baseline | seed=1 | group_thr=0.0001 | unit=post-shuffle channel (r^2 rows + biases)
+============================================================================================================================================================
+Cross-check vs training sparsity report (dead channel-groups per targeted layer)
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Layer                                         Report dead/total  Recomputed dead/total  Match
+decoder.1.conv.upconv.0.weight                             0/32                   0/32     OK
+decoder.2.conv.upconv.0.weight                             0/27                   0/27     OK
+decoder.3.conv.upconv.0.weight                             0/22                   0/22     OK
+decoder.4.conv.upconv.0.weight                             0/18                   0/18     OK
+decoder.5.conv.upconv.0.weight                             0/15                   0/15     OK
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Budget
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+  requested decoder+head params : 173,225 (full: 346,450)
+  achieved  decoder+head params : 170,336 | groups removed 49/109 | budget_reached=True
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Prune plan and per-layer widths (post-shuffle channel granularity)
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Block                                    r   dead   ch before->after  in_ch before->after   rows before->after   params before->after
+decoder.1.conv.upconv.0                  4      0       32 -> 32             38 -> 38             512 -> 512            19968 -> 19968    
+decoder.2.conv.upconv.0                  4      0       27 -> 27             32 -> 32             432 -> 432           124848 -> 124848   
+decoder.3.conv.upconv.0                  3      0       22 -> 4              27 -> 27             198 -> 36            133848 -> 24336    
+decoder.4.conv.upconv.0                  2      0       18 -> 1              22 -> 4               72 -> 4              39672 -> 404      
+decoder.5.conv.upconv.0                  2      0       15 -> 1              18 -> 1               60 -> 4              27060 -> 104      
+head_layer                               -      -     3 (RGB, fixed)        15 -> 1       
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Size / cost accounting (physically rebuilt model = source of truth)
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+  decoder+head params    :      346,450 ->      170,336   (50.83% reduction)
+  decoder+head bytes     :    1,390,457 ->      686,009   (50.66% reduction)  [1.390 MB -> 0.686 MB]
+  decoder+head FLOPs/frame: 1,564,901,760 -> 44,280,192   (97.17% reduction)
+  decode latency (mean)  : 11.96 ms -> 3.44 ms   (fps 83.6 -> 291.1, 20 runs, cpu)
+  embedding storage      : 384 values (unchanged by conv pruning)
+  total stored repr      : 346,834 -> 170,720
+  encoder params (aux)   : 275,760 (training-only; untouched)
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Verification (full video, dense vs physically pruned)
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+  max |out_dense - out_pruned| : 4.751e-01
+  PSNR seen   : dense 16.3047 | pruned 11.1728 | training report 16.3047
+  PSNR unseen : dense 16.0305 | pruned 11.3001
+  MS-SSIM seen: dense 0.398792 | pruned 0.267286
+  round-trip artifact reload   : OK
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+VERDICT: BUDGET PRUNE: decoder+head 346,450 -> 170,336 (50.83% reduction, requested 173,225, reached=True), PSNR 16.30 -> 11.17 dB (-5.13); fine-tune with --init_artifact to recover
+============================================================================================================================================================

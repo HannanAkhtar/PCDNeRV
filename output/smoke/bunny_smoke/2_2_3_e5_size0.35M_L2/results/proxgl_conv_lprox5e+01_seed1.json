@@ -1,0 +1,1548 @@
+{
+  "config": {
+    "method": "prox_gl",
+    "format_version": 2,
+    "arch": "hnerv",
+    "sparsity_target": "conv",
+    "group_unit": "post-shuffle channel (r^2 conv rows + their biases)",
+    "vid": "bunny_smoke",
+    "data_path": "data/bunny_smoke",
+    "data_split": "2_2_3",
+    "shuffle_data": false,
+    "crop_list": "192_384",
+    "resize_list": "-1",
+    "embed": "",
+    "enc_strds": [
+      4,
+      4,
+      3,
+      2,
+      2
+    ],
+    "enc_dim": "64_16",
+    "dec_strds": [
+      4,
+      4,
+      3,
+      2,
+      2
+    ],
+    "fc_hw": "9_16",
+    "fc_dim": 38,
+    "ks": "0_1_5",
+    "reduce": 1.2,
+    "lower_width": 6,
+    "num_blks": "1_1",
+    "conv_type": [
+      "convnext",
+      "pshuffel"
+    ],
+    "norm": "none",
+    "act": "gelu",
+    "out_bias": "tanh",
+    "modelsize": 0.35,
+    "loss": "L2",
+    "lr": 0.001,
+    "lr_type": "cosine_0.1_1_0.1",
+    "batchSize": 1,
+    "epochs": 5,
+    "warmup": 0,
+    "seed": 1,
+    "tau": null,
+    "lambda_prox": 50.0,
+    "ws_weight": null,
+    "beta_ema": 0.999,
+    "solver_eps": 1e-08,
+    "group_thr": 0.0001,
+    "param_thr": 1e-08,
+    "quant_model_bit": 8,
+    "quant_embed_bit": 6,
+    "eval_freq": 1,
+    "ckpt_every": 100,
+    "init_artifact": null,
+    "accounting": {
+      "encoder_params": 275760,
+      "decoder_head_params": 346450,
+      "other_params": 0,
+      "trainable_params": 622210,
+      "embedding_storage": 384,
+      "total_stored_representation": 346834
+    }
+  },
+  "epochs": [
+    {
+      "epoch": 1,
+      "warmup": false,
+      "epoch_seconds": 2.638903,
+      "primary_loss": 0.07855809386819601,
+      "gl_loss": 199.36398887634277,
+      "train_pred_psnr": 11.061965942382812,
+      "lr": 0.0009829629131445341,
+      "effective_step": "prox_gl",
+      "group_unit": "post-shuffle channel (r^2 conv rows + their biases)",
+      "group_total": 114,
+      "group_sparse": 0,
+      "group_sparsity": 0.0,
+      "group_sparse_fraction": "0/114",
+      "trainable_param_total": 622210,
+      "trainable_param_sparse": 48,
+      "model_param_sparsity": 0.007714437247874512,
+      "decoder_head_param_total": 346450,
+      "decoder_head_param_sparse": 1,
+      "decoder_head_param_sparsity": 0.0002886419396738346,
+      "targeted_param_total": 345396,
+      "targeted_param_sparse": 1,
+      "targeted_param_sparsity": 0.00028952275069774985,
+      "non_target_param_total": 276814,
+      "non_target_param_sparse": 47,
+      "non_target_param_sparsity": 0.016978910026226996,
+      "sparse_from_targeted_pct": 2.083333333333333,
+      "sparse_from_non_target_pct": 97.91666666666666,
+      "pred_seen_psnr": 11.336129188537598,
+      "pred_seen_ssim": 0.2687975764274597,
+      "pred_unseen_psnr": 11.462695121765137,
+      "pred_unseen_ssim": 0.2649513781070709,
+      "quant_seen_psnr": 11.336150169372559,
+      "quant_seen_ssim": 0.2688043713569641,
+      "quant_unseen_psnr": 11.46263313293457,
+      "quant_unseen_ssim": 0.2649582624435425
+    },
+    {
+      "epoch": 2,
+      "warmup": false,
+      "epoch_seconds": 2.512476,
+      "primary_loss": 0.05331274401396513,
+      "gl_loss": 162.09589004516602,
+      "train_pred_psnr": 12.838030815124512,
+      "lr": 0.0007867882181755231,
+      "effective_step": "prox_gl",
+      "group_unit": "post-shuffle channel (r^2 conv rows + their biases)",
+      "group_total": 114,
+      "group_sparse": 0,
+      "group_sparsity": 0.0,
+      "group_sparse_fraction": "0/114",
+      "trainable_param_total": 622210,
+      "trainable_param_sparse": 0,
+      "model_param_sparsity": 0.0,
+      "decoder_head_param_total": 346450,
+      "decoder_head_param_sparse": 0,
+      "decoder_head_param_sparsity": 0.0,
+      "targeted_param_total": 345396,
+      "targeted_param_sparse": 0,
+      "targeted_param_sparsity": 0.0,
+      "non_target_param_total": 276814,
+      "non_target_param_sparse": 0,
+      "non_target_param_sparsity": 0.0,
+      "sparse_from_targeted_pct": 0.0,
+      "sparse_from_non_target_pct": 0.0,
+      "pred_seen_psnr": 14.449665069580078,
+      "pred_seen_ssim": 0.329109787940979,
+      "pred_unseen_psnr": 14.413517951965332,
+      "pred_unseen_ssim": 0.3248007595539093,
+      "quant_seen_psnr": 14.451454162597656,
+      "quant_seen_ssim": 0.329111784696579,
+      "quant_unseen_psnr": 14.41347885131836,
+      "quant_unseen_ssim": 0.32480689883232117
+    },
+    {
+      "epoch": 3,
+      "warmup": false,
+      "epoch_seconds": 2.477603,
+      "primary_loss": 0.031246650498360395,
+      "gl_loss": 135.3587465286255,
+      "train_pred_psnr": 15.082038879394531,
+      "lr": 0.000456422128626171,
+      "effective_step": "prox_gl",
+      "group_unit": "post-shuffle channel (r^2 conv rows + their biases)",
+      "group_total": 114,
+      "group_sparse": 0,
+      "group_sparsity": 0.0,
+      "group_sparse_fraction": "0/114",
+      "trainable_param_total": 622210,
+      "trainable_param_sparse": 0,
+      "model_param_sparsity": 0.0,
+      "decoder_head_param_total": 346450,
+      "decoder_head_param_sparse": 0,
+      "decoder_head_param_sparsity": 0.0,
+      "targeted_param_total": 345396,
+      "targeted_param_sparse": 0,
+      "targeted_param_sparsity": 0.0,
+      "non_target_param_total": 276814,
+      "non_target_param_sparse": 0,
+      "non_target_param_sparsity": 0.0,
+      "sparse_from_targeted_pct": 0.0,
+      "sparse_from_non_target_pct": 0.0,
+      "pred_seen_psnr": 15.515478134155273,
+      "pred_seen_ssim": 0.3592521846294403,
+      "pred_unseen_psnr": 15.341658592224121,
+      "pred_unseen_ssim": 0.35396867990493774,
+      "quant_seen_psnr": 15.51698112487793,
+      "quant_seen_ssim": 0.3592522144317627,
+      "quant_unseen_psnr": 15.343179702758789,
+      "quant_unseen_ssim": 0.3539828360080719
+    },
+    {
+      "epoch": 4,
+      "warmup": false,
+      "epoch_seconds": 2.485495,
+      "primary_loss": 0.02754709916189313,
+      "gl_loss": 119.95986080169678,
+      "train_pred_psnr": 15.621853828430176,
+      "lr": 0.00014644660940672628,
+      "effective_step": "prox_gl",
+      "group_unit": "post-shuffle channel (r^2 conv rows + their biases)",
+      "group_total": 114,
+      "group_sparse": 0,
+      "group_sparsity": 0.0,
+      "group_sparse_fraction": "0/114",
+      "trainable_param_total": 622210,
+      "trainable_param_sparse": 0,
+      "model_param_sparsity": 0.0,
+      "decoder_head_param_total": 346450,
+      "decoder_head_param_sparse": 0,
+      "decoder_head_param_sparsity": 0.0,
+      "targeted_param_total": 345396,
+      "targeted_param_sparse": 0,
+      "targeted_param_sparsity": 0.0,
+      "non_target_param_total": 276814,
+      "non_target_param_sparse": 0,
+      "non_target_param_sparsity": 0.0,
+      "sparse_from_targeted_pct": 0.0,
+      "sparse_from_non_target_pct": 0.0,
+      "pred_seen_psnr": 15.72918701171875,
+      "pred_seen_ssim": 0.3727127015590668,
+      "pred_unseen_psnr": 15.538616180419922,
+      "pred_unseen_ssim": 0.3667883574962616,
+      "quant_seen_psnr": 15.728364944458008,
+      "quant_seen_ssim": 0.37273651361465454,
+      "quant_unseen_psnr": 15.536247253417969,
+      "quant_unseen_ssim": 0.36674997210502625
+    },
+    {
+      "epoch": 5,
+      "warmup": false,
+      "epoch_seconds": 2.592171,
+      "primary_loss": 0.026716400869190693,
+      "gl_loss": 115.12786293029785,
+      "train_pred_psnr": 15.758659362792969,
+      "lr": 1.9026509541272275e-06,
+      "effective_step": "prox_gl",
+      "group_unit": "post-shuffle channel (r^2 conv rows + their biases)",
+      "group_total": 114,
+      "group_sparse": 0,
+      "group_sparsity": 0.0,
+      "group_sparse_fraction": "0/114",
+      "trainable_param_total": 622210,
+      "trainable_param_sparse": 0,
+      "model_param_sparsity": 0.0,
+      "decoder_head_param_total": 346450,
+      "decoder_head_param_sparse": 0,
+      "decoder_head_param_sparsity": 0.0,
+      "targeted_param_total": 345396,
+      "targeted_param_sparse": 0,
+      "targeted_param_sparsity": 0.0,
+      "non_target_param_total": 276814,
+      "non_target_param_sparse": 0,
+      "non_target_param_sparsity": 0.0,
+      "sparse_from_targeted_pct": 0.0,
+      "sparse_from_non_target_pct": 0.0,
+      "pred_seen_psnr": 15.774497032165527,
+      "pred_seen_ssim": 0.3746660053730011,
+      "pred_unseen_psnr": 15.579965591430664,
+      "pred_unseen_ssim": 0.36864057183265686,
+      "quant_seen_psnr": 15.775785446166992,
+      "quant_seen_ssim": 0.37475213408470154,
+      "quant_unseen_psnr": 15.580856323242188,
+      "quant_unseen_ssim": 0.3686754107475281
+    }
+  ],
+  "final": {
+    "epoch": 5,
+    "warmup": false,
+    "epoch_seconds": 2.592171,
+    "primary_loss": 0.026716400869190693,
+    "gl_loss": 115.12786293029785,
+    "train_pred_psnr": 15.758659362792969,
+    "lr": 1.9026509541272275e-06,
+    "effective_step": "prox_gl",
+    "group_unit": "post-shuffle channel (r^2 conv rows + their biases)",
+    "group_total": 114,
+    "group_sparse": 0,
+    "group_sparsity": 0.0,
+    "group_sparse_fraction": "0/114",
+    "trainable_param_total": 622210,
+    "trainable_param_sparse": 0,
+    "model_param_sparsity": 0.0,
+    "decoder_head_param_total": 346450,
+    "decoder_head_param_sparse": 0,
+    "decoder_head_param_sparsity": 0.0,
+    "targeted_param_total": 345396,
+    "targeted_param_sparse": 0,
+    "targeted_param_sparsity": 0.0,
+    "non_target_param_total": 276814,
+    "non_target_param_sparse": 0,
+    "non_target_param_sparsity": 0.0,
+    "sparse_from_targeted_pct": 0.0,
+    "sparse_from_non_target_pct": 0.0,
+    "pred_seen_psnr": 15.774497032165527,
+    "pred_seen_ssim": 0.3746660053730011,
+    "pred_unseen_psnr": 15.579965591430664,
+    "pred_unseen_ssim": 0.36864057183265686,
+    "quant_seen_psnr": 15.775785446166992,
+    "quant_seen_ssim": 0.37475213408470154,
+    "quant_unseen_psnr": 15.580856323242188,
+    "quant_unseen_ssim": 0.3686754107475281
+  },
+  "final_layer_breakdown": [
+    {
+      "layer": "encoder.downsample_layers.0.0.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        3,
+        4,
+        4
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 3072,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.0.0.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.0.1.weight",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.0.1.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.1.0.weight",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.1.0.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.1.1.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        64,
+        4,
+        4
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 65536,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.1.1.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.2.0.weight",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.2.0.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.2.1.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        64,
+        3,
+        3
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 36864,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.2.1.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.3.0.weight",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.3.0.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.3.1.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        64,
+        2,
+        2
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16384,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.3.1.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.4.0.weight",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.4.0.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.4.1.weight",
+      "scope": "encoder",
+      "shape": [
+        16,
+        64,
+        2,
+        2
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 4096,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.downsample_layers.4.1.bias",
+      "scope": "encoder",
+      "shape": [
+        16
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.0.0.gamma",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.0.0.dwconv.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        1,
+        7,
+        7
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 3136,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.0.0.dwconv.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.0.0.norm.weight",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.0.0.norm.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.0.0.pwconv1.weight",
+      "scope": "encoder",
+      "shape": [
+        256,
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16384,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.0.0.pwconv1.bias",
+      "scope": "encoder",
+      "shape": [
+        256
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 256,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.0.0.pwconv2.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        256
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16384,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.0.0.pwconv2.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.1.0.gamma",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.1.0.dwconv.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        1,
+        7,
+        7
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 3136,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.1.0.dwconv.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.1.0.norm.weight",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.1.0.norm.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.1.0.pwconv1.weight",
+      "scope": "encoder",
+      "shape": [
+        256,
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16384,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.1.0.pwconv1.bias",
+      "scope": "encoder",
+      "shape": [
+        256
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 256,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.1.0.pwconv2.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        256
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16384,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.1.0.pwconv2.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.2.0.gamma",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.2.0.dwconv.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        1,
+        7,
+        7
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 3136,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.2.0.dwconv.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.2.0.norm.weight",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.2.0.norm.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.2.0.pwconv1.weight",
+      "scope": "encoder",
+      "shape": [
+        256,
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16384,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.2.0.pwconv1.bias",
+      "scope": "encoder",
+      "shape": [
+        256
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 256,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.2.0.pwconv2.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        256
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16384,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.2.0.pwconv2.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.3.0.gamma",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.3.0.dwconv.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        1,
+        7,
+        7
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 3136,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.3.0.dwconv.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.3.0.norm.weight",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.3.0.norm.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.3.0.pwconv1.weight",
+      "scope": "encoder",
+      "shape": [
+        256,
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16384,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.3.0.pwconv1.bias",
+      "scope": "encoder",
+      "shape": [
+        256
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 256,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.3.0.pwconv2.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        256
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16384,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.3.0.pwconv2.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.4.0.gamma",
+      "scope": "encoder",
+      "shape": [
+        16
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.4.0.dwconv.weight",
+      "scope": "encoder",
+      "shape": [
+        16,
+        1,
+        7,
+        7
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 784,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.4.0.dwconv.bias",
+      "scope": "encoder",
+      "shape": [
+        16
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.4.0.norm.weight",
+      "scope": "encoder",
+      "shape": [
+        16
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.4.0.norm.bias",
+      "scope": "encoder",
+      "shape": [
+        16
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.4.0.pwconv1.weight",
+      "scope": "encoder",
+      "shape": [
+        64,
+        16
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 1024,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.4.0.pwconv1.bias",
+      "scope": "encoder",
+      "shape": [
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 64,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.4.0.pwconv2.weight",
+      "scope": "encoder",
+      "shape": [
+        16,
+        64
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 1024,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "encoder.stages.4.0.pwconv2.bias",
+      "scope": "encoder",
+      "shape": [
+        16
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 16,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.0.conv.downconv.weight",
+      "scope": "fc_stem",
+      "shape": [
+        38,
+        16,
+        1,
+        1
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 608,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.0.conv.downconv.bias",
+      "scope": "fc_stem",
+      "shape": [
+        38
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 38,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.1.conv.upconv.0.weight",
+      "scope": "conv_blocks",
+      "shape": [
+        512,
+        38,
+        1,
+        1
+      ],
+      "is_gl_targeted": true,
+      "grouping": "r=4, 32 ch-groups",
+      "param_total": 19456,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 32,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.1.conv.upconv.0.bias",
+      "scope": "conv_blocks",
+      "shape": [
+        512
+      ],
+      "is_gl_targeted": true,
+      "grouping": "in weight groups",
+      "param_total": 512,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.2.conv.upconv.0.weight",
+      "scope": "conv_blocks",
+      "shape": [
+        432,
+        32,
+        3,
+        3
+      ],
+      "is_gl_targeted": true,
+      "grouping": "r=4, 27 ch-groups",
+      "param_total": 124416,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 27,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.2.conv.upconv.0.bias",
+      "scope": "conv_blocks",
+      "shape": [
+        432
+      ],
+      "is_gl_targeted": true,
+      "grouping": "in weight groups",
+      "param_total": 432,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.3.conv.upconv.0.weight",
+      "scope": "conv_blocks",
+      "shape": [
+        198,
+        27,
+        5,
+        5
+      ],
+      "is_gl_targeted": true,
+      "grouping": "r=3, 22 ch-groups",
+      "param_total": 133650,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 22,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.3.conv.upconv.0.bias",
+      "scope": "conv_blocks",
+      "shape": [
+        198
+      ],
+      "is_gl_targeted": true,
+      "grouping": "in weight groups",
+      "param_total": 198,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.4.conv.upconv.0.weight",
+      "scope": "conv_blocks",
+      "shape": [
+        72,
+        22,
+        5,
+        5
+      ],
+      "is_gl_targeted": true,
+      "grouping": "r=2, 18 ch-groups",
+      "param_total": 39600,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 18,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.4.conv.upconv.0.bias",
+      "scope": "conv_blocks",
+      "shape": [
+        72
+      ],
+      "is_gl_targeted": true,
+      "grouping": "in weight groups",
+      "param_total": 72,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.5.conv.upconv.0.weight",
+      "scope": "conv_blocks",
+      "shape": [
+        60,
+        18,
+        5,
+        5
+      ],
+      "is_gl_targeted": true,
+      "grouping": "r=2, 15 ch-groups",
+      "param_total": 27000,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 15,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "decoder.5.conv.upconv.0.bias",
+      "scope": "conv_blocks",
+      "shape": [
+        60
+      ],
+      "is_gl_targeted": true,
+      "grouping": "in weight groups",
+      "param_total": 60,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "head_layer.weight",
+      "scope": "head",
+      "shape": [
+        3,
+        15,
+        3,
+        3
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 405,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    },
+    {
+      "layer": "head_layer.bias",
+      "scope": "head",
+      "shape": [
+        3
+      ],
+      "is_gl_targeted": false,
+      "grouping": "",
+      "param_total": 3,
+      "param_sparse": 0,
+      "param_sparsity": 0.0,
+      "group_total": 0,
+      "group_sparse": 0,
+      "group_sparsity": 0.0
+    }
+  ],
+  "checkpoint_comparison": {
+    "status": "insufficient",
+    "message": "Insufficient checkpoints for comparison (need at least two)."
+  }
+}

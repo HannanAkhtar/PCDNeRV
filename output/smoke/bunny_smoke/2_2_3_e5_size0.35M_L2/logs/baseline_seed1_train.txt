@@ -1,0 +1,65 @@
+
+================================================================================================
+  PCD-NeRV v2 run: baseline_seed1
+  method=baseline  target=conv  tau=None  lambda_prox=None  ws_weight=None  seed=1  warmup=0  epochs=5  device=cpu
+================================================================================================
+Param accounting | encoder_params=275,760 | decoder_head_params=346,450 | other_params=0 | trainable_params=622,210 | embedding_storage=384 | total_stored_representation=346,834
+Group-lasso target = 'conv'  (unit: post-shuffle channel = r^2 rows + biases)
+  decoder.1.conv.upconv.0.weight               shape=[512, 38, 1, 1]  r=4  channel-groups=32  group_size=624
+  decoder.2.conv.upconv.0.weight               shape=[432, 32, 3, 3]  r=4  channel-groups=27  group_size=4624
+  decoder.3.conv.upconv.0.weight               shape=[198, 27, 5, 5]  r=3  channel-groups=22  group_size=6084
+  decoder.4.conv.upconv.0.weight               shape=[72, 22, 5, 5]  r=2  channel-groups=18  group_size=2204
+  decoder.5.conv.upconv.0.weight               shape=[60, 18, 5, 5]  r=2  channel-groups=15  group_size=1804
+  -> 114 channel groups over 345396 targeted parameters (incl. biases)
+[2026/07/16 13:56:13] Epoch[1/5], Step [1/8], lr:1.00e-04 pred_PSNR: 11.46 | primary: 0.07138 | gl: 213.37
+[2026/07/16 13:56:14] Epoch[1/5], Step [8/8], lr:9.83e-04 pred_PSNR: 11.08 | primary: 0.07826 | gl: 213.74
+[2026/07/16 13:56:14] Eval at Step [1/12] , FPS 85.6, pred_seen_psnr: 11.15 | 
+[2026/07/16 13:56:15] Eval at Step [12/12] , FPS 80.6, pred_seen_psnr: 11.5 | 
+[2026/07/16 13:56:15] Eval at Step [1/12] , FPS 65.3, quant_seen_psnr: 11.15 | 
+[2026/07/16 13:56:15] Eval at Step [12/12] , FPS 72.3, quant_seen_psnr: 11.5 | 
+Epoch[1/5] TRAIN | method baseline | primary(L2) 0.07826 | gl 213.74 | train_PSNR 11.08 | lr 9.83e-04 | 2.7s
+           SPARSE| ch-groups 0/114 (0.00%) | dec+head 0/346450 (0.00%) | all 34/622210 (0.01%)
+           EVAL  | seen PSNR 11.50 SSIM 0.2706 | unseen PSNR 11.63 SSIM 0.2668 | quant seen PSNR 11.50 SSIM 0.2707
+[2026/07/16 13:56:16] Epoch[2/5], Step [1/8], lr:9.70e-04 pred_PSNR: 11.68 | primary: 0.06785 | gl: 215.05
+[2026/07/16 13:56:16] Epoch[2/5], Step [8/8], lr:7.87e-04 pred_PSNR: 13.53 | primary: 0.04573 | gl: 217.26
+[2026/07/16 13:56:17] Eval at Step [1/12] , FPS 87.8, pred_seen_psnr: 15.43 | 
+[2026/07/16 13:56:17] Eval at Step [12/12] , FPS 83.7, pred_seen_psnr: 15.13 | 
+[2026/07/16 13:56:17] Eval at Step [1/12] , FPS 77.2, quant_seen_psnr: 15.42 | 
+[2026/07/16 13:56:18] Eval at Step [12/12] , FPS 76.8, quant_seen_psnr: 15.13 | 
+Epoch[2/5] TRAIN | method baseline | primary(L2) 0.04573 | gl 217.26 | train_PSNR 13.53 | lr 7.87e-04 | 2.5s
+           SPARSE| ch-groups 0/114 (0.00%) | dec+head 0/346450 (0.00%) | all 0/622210 (0.00%)
+           EVAL  | seen PSNR 15.13 SSIM 0.3351 | unseen PSNR 14.96 SSIM 0.3313 | quant seen PSNR 15.13 SSIM 0.3351
+[2026/07/16 13:56:18] Epoch[3/5], Step [1/8], lr:7.50e-04 pred_PSNR: 15.44 | primary: 0.02860 | gl: 219.56
+[2026/07/16 13:56:19] Epoch[3/5], Step [8/8], lr:4.56e-04 pred_PSNR: 15.56 | primary: 0.02815 | gl: 220.34
+[2026/07/16 13:56:19] Eval at Step [1/12] , FPS 92.9, pred_seen_psnr: 16.54 | 
+[2026/07/16 13:56:20] Eval at Step [12/12] , FPS 87.9, pred_seen_psnr: 15.98 | 
+[2026/07/16 13:56:20] Eval at Step [1/12] , FPS 75.1, quant_seen_psnr: 16.54 | 
+[2026/07/16 13:56:20] Eval at Step [12/12] , FPS 74.3, quant_seen_psnr: 15.97 | 
+Epoch[3/5] TRAIN | method baseline | primary(L2) 0.02815 | gl 220.34 | train_PSNR 15.56 | lr 4.56e-04 | 2.5s
+           SPARSE| ch-groups 0/114 (0.00%) | dec+head 0/346450 (0.00%) | all 0/622210 (0.00%)
+           EVAL  | seen PSNR 15.98 SSIM 0.3914 | unseen PSNR 15.72 SSIM 0.3851 | quant seen PSNR 15.97 SSIM 0.3915
+[2026/07/16 13:56:21] Epoch[4/5], Step [1/8], lr:4.13e-04 pred_PSNR: 16.56 | primary: 0.02209 | gl: 220.93
+[2026/07/16 13:56:22] Epoch[4/5], Step [8/8], lr:1.46e-04 pred_PSNR: 16.12 | primary: 0.02481 | gl: 221.03
+[2026/07/16 13:56:22] Eval at Step [1/12] , FPS 85.2, pred_seen_psnr: 16.82 | 
+[2026/07/16 13:56:22] Eval at Step [12/12] , FPS 78.7, pred_seen_psnr: 16.25 | 
+[2026/07/16 13:56:22] Eval at Step [1/12] , FPS 72.0, quant_seen_psnr: 16.81 | 
+[2026/07/16 13:56:23] Eval at Step [12/12] , FPS 72.9, quant_seen_psnr: 16.25 | 
+Epoch[4/5] TRAIN | method baseline | primary(L2) 0.02481 | gl 221.03 | train_PSNR 16.12 | lr 1.46e-04 | 2.6s
+           SPARSE| ch-groups 0/114 (0.00%) | dec+head 0/346450 (0.00%) | all 0/622210 (0.00%)
+           EVAL  | seen PSNR 16.25 SSIM 0.3958 | unseen PSNR 15.98 SSIM 0.3881 | quant seen PSNR 16.25 SSIM 0.3960
+[2026/07/16 13:56:23] Epoch[5/5], Step [1/8], lr:1.17e-04 pred_PSNR: 16.82 | primary: 0.02081 | gl: 221.09
+[2026/07/16 13:56:24] Epoch[5/5], Step [8/8], lr:1.90e-06 pred_PSNR: 16.29 | primary: 0.02389 | gl: 221.10
+[2026/07/16 13:56:24] Eval at Step [1/12] , FPS 85.0, pred_seen_psnr: 16.91 | 
+[2026/07/16 13:56:25] Eval at Step [12/12] , FPS 80.7, pred_seen_psnr: 16.3 | 
+[2026/07/16 13:56:25] Eval at Step [1/12] , FPS 65.5, quant_seen_psnr: 16.91 | 
+[2026/07/16 13:56:26] Eval at Step [12/12] , FPS 74.0, quant_seen_psnr: 16.31 | 
+After quantization and encoding: 
+ bits per parameter: 8.17, bits per pixel: 3.2034
+Epoch[5/5] TRAIN | method baseline | primary(L2) 0.02389 | gl 221.10 | train_PSNR 16.29 | lr 1.90e-06 | 2.5s
+           SPARSE| ch-groups 0/114 (0.00%) | dec+head 0/346450 (0.00%) | all 0/622210 (0.00%)
+           EVAL  | seen PSNR 16.30 SSIM 0.3988 | unseen PSNR 16.03 SSIM 0.3911 | quant seen PSNR 16.31 SSIM 0.3992
+  Saved checkpoint output\smoke\bunny_smoke/2_2_3_e5_size0.35M_L2\checkpoints\baseline_seed1_ep005.pth
+Training complete in: 0:00:13.030238
+  Saved output\smoke\bunny_smoke/2_2_3_e5_size0.35M_L2\reports\baseline_seed1_sparsity_breakdown.txt
+  Saved output\smoke\bunny_smoke/2_2_3_e5_size0.35M_L2\reports\baseline_seed1_checkpoint_progress.txt
+  Saved output\smoke\bunny_smoke/2_2_3_e5_size0.35M_L2\results\baseline_seed1.json

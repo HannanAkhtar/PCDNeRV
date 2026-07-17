@@ -1,0 +1,306 @@
+{
+  "tag": "pcd_conv_tau0.5_lprox5e+01_seed1",
+  "mode": "exact",
+  "config": {
+    "method": "pcd",
+    "format_version": 2,
+    "arch": "hnerv",
+    "sparsity_target": "conv",
+    "group_unit": "post-shuffle channel (r^2 conv rows + their biases)",
+    "vid": "bunny_smoke",
+    "data_path": "data/bunny_smoke",
+    "data_split": "2_2_3",
+    "shuffle_data": false,
+    "crop_list": "192_384",
+    "resize_list": "-1",
+    "embed": "",
+    "enc_strds": [
+      4,
+      4,
+      3,
+      2,
+      2
+    ],
+    "enc_dim": "64_16",
+    "dec_strds": [
+      4,
+      4,
+      3,
+      2,
+      2
+    ],
+    "fc_hw": "9_16",
+    "fc_dim": 38,
+    "ks": "0_1_5",
+    "reduce": 1.2,
+    "lower_width": 6,
+    "num_blks": "1_1",
+    "conv_type": [
+      "convnext",
+      "pshuffel"
+    ],
+    "norm": "none",
+    "act": "gelu",
+    "out_bias": "tanh",
+    "modelsize": 0.35,
+    "loss": "L2",
+    "lr": 0.001,
+    "lr_type": "cosine_0.1_1_0.1",
+    "batchSize": 1,
+    "epochs": 5,
+    "warmup": 0,
+    "seed": 1,
+    "tau": 0.5,
+    "lambda_prox": 50.0,
+    "ws_weight": null,
+    "beta_ema": 0.999,
+    "solver_eps": 1e-08,
+    "group_thr": 0.0001,
+    "param_thr": 1e-08,
+    "quant_model_bit": 8,
+    "quant_embed_bit": 6,
+    "eval_freq": 1,
+    "ckpt_every": 100,
+    "init_artifact": null,
+    "accounting": {
+      "encoder_params": 275760,
+      "decoder_head_params": 346450,
+      "other_params": 0,
+      "trainable_params": 622210,
+      "embedding_storage": 384,
+      "total_stored_representation": 346834
+    }
+  },
+  "group_thr": 0.0001,
+  "crosscheck": [
+    {
+      "layer": "decoder.1.conv.upconv.0.weight",
+      "report": "0/32",
+      "recomputed": "0/32",
+      "match": true
+    },
+    {
+      "layer": "decoder.2.conv.upconv.0.weight",
+      "report": "0/27",
+      "recomputed": "0/27",
+      "match": true
+    },
+    {
+      "layer": "decoder.3.conv.upconv.0.weight",
+      "report": "22/22",
+      "recomputed": "22/22",
+      "match": true
+    },
+    {
+      "layer": "decoder.4.conv.upconv.0.weight",
+      "report": "18/18",
+      "recomputed": "18/18",
+      "match": true
+    },
+    {
+      "layer": "decoder.5.conv.upconv.0.weight",
+      "report": "15/15",
+      "recomputed": "15/15",
+      "match": true
+    }
+  ],
+  "crosscheck_all_match": true,
+  "plans": [
+    {
+      "block_idx": 1,
+      "conv_path": "decoder.1.conv.upconv.0",
+      "r": 4,
+      "channels_before": 32,
+      "groups_dead": 0,
+      "keep_channels": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "in_ch_before": 38,
+      "in_ch_after": 38,
+      "rows_before": 512,
+      "rows_after": 512,
+      "params_before": 19968,
+      "params_after": 19968
+    },
+    {
+      "block_idx": 2,
+      "conv_path": "decoder.2.conv.upconv.0",
+      "r": 4,
+      "channels_before": 27,
+      "groups_dead": 0,
+      "keep_channels": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ],
+      "in_ch_before": 32,
+      "in_ch_after": 32,
+      "rows_before": 432,
+      "rows_after": 432,
+      "params_before": 124848,
+      "params_after": 124848
+    },
+    {
+      "block_idx": 3,
+      "conv_path": "decoder.3.conv.upconv.0",
+      "r": 3,
+      "channels_before": 22,
+      "groups_dead": 22,
+      "keep_channels": [
+        0
+      ],
+      "in_ch_before": 27,
+      "in_ch_after": 27,
+      "rows_before": 198,
+      "rows_after": 9,
+      "params_before": 133848,
+      "params_after": 6084
+    },
+    {
+      "block_idx": 4,
+      "conv_path": "decoder.4.conv.upconv.0",
+      "r": 2,
+      "channels_before": 18,
+      "groups_dead": 18,
+      "keep_channels": [
+        0
+      ],
+      "in_ch_before": 22,
+      "in_ch_after": 1,
+      "rows_before": 72,
+      "rows_after": 4,
+      "params_before": 39672,
+      "params_after": 104
+    },
+    {
+      "block_idx": 5,
+      "conv_path": "decoder.5.conv.upconv.0",
+      "r": 2,
+      "channels_before": 15,
+      "groups_dead": 15,
+      "keep_channels": [
+        0
+      ],
+      "in_ch_before": 18,
+      "in_ch_after": 1,
+      "rows_before": 60,
+      "rows_after": 4,
+      "params_before": 27060,
+      "params_after": 104
+    }
+  ],
+  "head_keep_in": [
+    0
+  ],
+  "sizes": {
+    "group_thr": 0.0001,
+    "dh_params_before": 346450,
+    "dh_params_after": 151784,
+    "dh_bytes_before": 1390457,
+    "dh_bytes_after": 611833,
+    "embedding_storage": 384,
+    "total_stored_before": 346834,
+    "total_stored_after": 152168,
+    "encoder_params": 275760,
+    "dh_params_reduction_pct": 56.18877182854669,
+    "dh_bytes_reduction_pct": 55.99770435187856
+  },
+  "widths": {
+    "head_in_before": 15,
+    "head_in_after": 1
+  },
+  "flops": {
+    "before": 1564901760,
+    "after": 22852992,
+    "reduction_pct": 98.53965324954328
+  },
+  "latency": {
+    "before": {
+      "latency_mean_s": 0.011398041248321533,
+      "latency_p50_s": 0.011466145515441895,
+      "latency_p90_s": 0.01190779209136963,
+      "fps": 87.73437279385695,
+      "runs": 20
+    },
+    "after": {
+      "latency_mean_s": 0.0027976155281066893,
+      "latency_p50_s": 0.0027881860733032227,
+      "latency_p90_s": 0.002913784980773926,
+      "fps": 357.44725819303653,
+      "runs": 20
+    },
+    "runs": 20,
+    "device": "cpu"
+  },
+  "budget_info": null,
+  "verify": {
+    "dense_seen_psnr": 11.189365029335022,
+    "dense_unseen_psnr": 11.316643238067627,
+    "dense_seen_msssim": 0.2666428964585066,
+    "dense_unseen_msssim": 0.262789249420166,
+    "pruned_seen_psnr": 11.189365029335022,
+    "pruned_unseen_psnr": 11.316643238067627,
+    "pruned_seen_msssim": 0.2666428964585066,
+    "pruned_unseen_msssim": 0.262789249420166,
+    "max_abs_output_diff": 0.0,
+    "reported_seen_psnr": 11.18936538696289,
+    "roundtrip_ok": true
+  },
+  "verdict": "EXACT-EQUIVALENT PRUNE: PSNR gap 0.00e+00 dB (tol 0.001), max output diff 0.000e+00, decoder+head 56.19% smaller",
+  "artifact": "output/smoke/bunny_smoke/2_2_3_e5_size0.35M_L2\\pruned\\pcd_conv_tau0.5_lprox5e+01_seed1_exact_pruned.pth"
+}

@@ -1,0 +1,43 @@
+============================================================================================================================================================
+Physical Pruning Report (exact mode): pcd_conv_tau0.5_lprox5e+01_seed1
+Generated: 2026-07-16 13:57:37 | vid=bunny_smoke | method=pcd | seed=1 | group_thr=0.0001 | unit=post-shuffle channel (r^2 rows + biases)
+============================================================================================================================================================
+Cross-check vs training sparsity report (dead channel-groups per targeted layer)
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Layer                                         Report dead/total  Recomputed dead/total  Match
+decoder.1.conv.upconv.0.weight                             0/32                   0/32     OK
+decoder.2.conv.upconv.0.weight                             0/27                   0/27     OK
+decoder.3.conv.upconv.0.weight                            22/22                  22/22     OK
+decoder.4.conv.upconv.0.weight                            18/18                  18/18     OK
+decoder.5.conv.upconv.0.weight                            15/15                  15/15     OK
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Prune plan and per-layer widths (post-shuffle channel granularity)
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Block                                    r   dead   ch before->after  in_ch before->after   rows before->after   params before->after
+decoder.1.conv.upconv.0                  4      0       32 -> 32             38 -> 38             512 -> 512            19968 -> 19968    
+decoder.2.conv.upconv.0                  4      0       27 -> 27             32 -> 32             432 -> 432           124848 -> 124848   
+decoder.3.conv.upconv.0                  3     22       22 -> 1              27 -> 27             198 -> 9             133848 -> 6084     
+decoder.4.conv.upconv.0                  2     18       18 -> 1              22 -> 1               72 -> 4              39672 -> 104      
+decoder.5.conv.upconv.0                  2     15       15 -> 1              18 -> 1               60 -> 4              27060 -> 104      
+head_layer                               -      -     3 (RGB, fixed)        15 -> 1       
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Size / cost accounting (physically rebuilt model = source of truth)
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+  decoder+head params    :      346,450 ->      151,784   (56.19% reduction)
+  decoder+head bytes     :    1,390,457 ->      611,833   (56.00% reduction)  [1.390 MB -> 0.612 MB]
+  decoder+head FLOPs/frame: 1,564,901,760 -> 22,852,992   (98.54% reduction)
+  decode latency (mean)  : 11.40 ms -> 2.80 ms   (fps 87.7 -> 357.4, 20 runs, cpu)
+  embedding storage      : 384 values (unchanged by conv pruning)
+  total stored repr      : 346,834 -> 152,168
+  encoder params (aux)   : 275,760 (training-only; untouched)
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Verification (full video, dense vs physically pruned)
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+  max |out_dense - out_pruned| : 0.000e+00
+  PSNR seen   : dense 11.1894 | pruned 11.1894 | training report 11.1894
+  PSNR unseen : dense 11.3166 | pruned 11.3166
+  MS-SSIM seen: dense 0.266643 | pruned 0.266643
+  round-trip artifact reload   : OK
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+VERDICT: EXACT-EQUIVALENT PRUNE: PSNR gap 0.00e+00 dB (tol 0.001), max output diff 0.000e+00, decoder+head 56.19% smaller
+============================================================================================================================================================

@@ -1,0 +1,316 @@
+{
+  "tag": "baseline_seed1",
+  "mode": "budget",
+  "config": {
+    "method": "baseline",
+    "format_version": 2,
+    "arch": "hnerv",
+    "sparsity_target": "conv",
+    "group_unit": "post-shuffle channel (r^2 conv rows + their biases)",
+    "vid": "bunny_smoke",
+    "data_path": "data/bunny_smoke",
+    "data_split": "2_2_3",
+    "shuffle_data": false,
+    "crop_list": "192_384",
+    "resize_list": "-1",
+    "embed": "",
+    "enc_strds": [
+      4,
+      4,
+      3,
+      2,
+      2
+    ],
+    "enc_dim": "64_16",
+    "dec_strds": [
+      4,
+      4,
+      3,
+      2,
+      2
+    ],
+    "fc_hw": "9_16",
+    "fc_dim": 38,
+    "ks": "0_1_5",
+    "reduce": 1.2,
+    "lower_width": 6,
+    "num_blks": "1_1",
+    "conv_type": [
+      "convnext",
+      "pshuffel"
+    ],
+    "norm": "none",
+    "act": "gelu",
+    "out_bias": "tanh",
+    "modelsize": 0.35,
+    "loss": "L2",
+    "lr": 0.001,
+    "lr_type": "cosine_0.1_1_0.1",
+    "batchSize": 1,
+    "epochs": 5,
+    "warmup": 0,
+    "seed": 1,
+    "tau": null,
+    "lambda_prox": null,
+    "ws_weight": null,
+    "beta_ema": 0.999,
+    "solver_eps": 1e-08,
+    "group_thr": 0.0001,
+    "param_thr": 1e-08,
+    "quant_model_bit": 8,
+    "quant_embed_bit": 6,
+    "eval_freq": 1,
+    "ckpt_every": 100,
+    "init_artifact": null,
+    "accounting": {
+      "encoder_params": 275760,
+      "decoder_head_params": 346450,
+      "other_params": 0,
+      "trainable_params": 622210,
+      "embedding_storage": 384,
+      "total_stored_representation": 346834
+    }
+  },
+  "group_thr": 0.0001,
+  "crosscheck": [
+    {
+      "layer": "decoder.1.conv.upconv.0.weight",
+      "report": "0/32",
+      "recomputed": "0/32",
+      "match": true
+    },
+    {
+      "layer": "decoder.2.conv.upconv.0.weight",
+      "report": "0/27",
+      "recomputed": "0/27",
+      "match": true
+    },
+    {
+      "layer": "decoder.3.conv.upconv.0.weight",
+      "report": "0/22",
+      "recomputed": "0/22",
+      "match": true
+    },
+    {
+      "layer": "decoder.4.conv.upconv.0.weight",
+      "report": "0/18",
+      "recomputed": "0/18",
+      "match": true
+    },
+    {
+      "layer": "decoder.5.conv.upconv.0.weight",
+      "report": "0/15",
+      "recomputed": "0/15",
+      "match": true
+    }
+  ],
+  "crosscheck_all_match": true,
+  "plans": [
+    {
+      "block_idx": 1,
+      "conv_path": "decoder.1.conv.upconv.0",
+      "r": 4,
+      "channels_before": 32,
+      "groups_dead": 0,
+      "keep_channels": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "in_ch_before": 38,
+      "in_ch_after": 38,
+      "rows_before": 512,
+      "rows_after": 512,
+      "params_before": 19968,
+      "params_after": 19968
+    },
+    {
+      "block_idx": 2,
+      "conv_path": "decoder.2.conv.upconv.0",
+      "r": 4,
+      "channels_before": 27,
+      "groups_dead": 0,
+      "keep_channels": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ],
+      "in_ch_before": 32,
+      "in_ch_after": 32,
+      "rows_before": 432,
+      "rows_after": 432,
+      "params_before": 124848,
+      "params_after": 124848
+    },
+    {
+      "block_idx": 3,
+      "conv_path": "decoder.3.conv.upconv.0",
+      "r": 3,
+      "channels_before": 22,
+      "groups_dead": 0,
+      "keep_channels": [
+        6,
+        7,
+        10,
+        15
+      ],
+      "in_ch_before": 27,
+      "in_ch_after": 27,
+      "rows_before": 198,
+      "rows_after": 36,
+      "params_before": 133848,
+      "params_after": 24336
+    },
+    {
+      "block_idx": 4,
+      "conv_path": "decoder.4.conv.upconv.0",
+      "r": 2,
+      "channels_before": 18,
+      "groups_dead": 0,
+      "keep_channels": [
+        12
+      ],
+      "in_ch_before": 22,
+      "in_ch_after": 4,
+      "rows_before": 72,
+      "rows_after": 4,
+      "params_before": 39672,
+      "params_after": 404
+    },
+    {
+      "block_idx": 5,
+      "conv_path": "decoder.5.conv.upconv.0",
+      "r": 2,
+      "channels_before": 15,
+      "groups_dead": 0,
+      "keep_channels": [
+        1
+      ],
+      "in_ch_before": 18,
+      "in_ch_after": 1,
+      "rows_before": 60,
+      "rows_after": 4,
+      "params_before": 27060,
+      "params_after": 104
+    }
+  ],
+  "head_keep_in": [
+    1
+  ],
+  "sizes": {
+    "group_thr": 0.0001,
+    "dh_params_before": 346450,
+    "dh_params_after": 170336,
+    "dh_bytes_before": 1390457,
+    "dh_bytes_after": 686009,
+    "embedding_storage": 384,
+    "total_stored_before": 346834,
+    "total_stored_after": 170720,
+    "encoder_params": 275760,
+    "dh_params_reduction_pct": 50.8338865637177,
+    "dh_bytes_reduction_pct": 50.663055383949306
+  },
+  "widths": {
+    "head_in_before": 15,
+    "head_in_after": 1
+  },
+  "flops": {
+    "before": 1564901760,
+    "after": 44280192,
+    "reduction_pct": 97.17041713851738
+  },
+  "latency": {
+    "before": {
+      "latency_mean_s": 0.01196136474609375,
+      "latency_p50_s": 0.012041926383972168,
+      "latency_p90_s": 0.01242682933807373,
+      "fps": 83.60250031891823,
+      "runs": 20
+    },
+    "after": {
+      "latency_mean_s": 0.0034354329109191895,
+      "latency_p50_s": 0.003401041030883789,
+      "latency_p90_s": 0.0038240194320678716,
+      "fps": 291.0841299859465,
+      "runs": 20
+    },
+    "runs": 20,
+    "device": "cpu"
+  },
+  "budget_info": {
+    "requested_budget_params": 173225,
+    "full_decoder_head_params": 346450,
+    "achieved_decoder_head_params": 170336,
+    "groups_removed": 49,
+    "groups_total_candidates": 109,
+    "budget_reached": true
+  },
+  "verify": {
+    "dense_seen_psnr": 16.304713487625122,
+    "dense_unseen_psnr": 16.030536890029907,
+    "dense_seen_msssim": 0.39879242330789566,
+    "dense_unseen_msssim": 0.39112403243780136,
+    "pruned_seen_psnr": 11.172802329063416,
+    "pruned_unseen_psnr": 11.300108671188354,
+    "pruned_seen_msssim": 0.26728616282343864,
+    "pruned_unseen_msssim": 0.2634027451276779,
+    "max_abs_output_diff": 0.47507354617118835,
+    "reported_seen_psnr": 16.30471420288086,
+    "roundtrip_ok": true
+  },
+  "verdict": "BUDGET PRUNE: decoder+head 346,450 -> 170,336 (50.83% reduction, requested 173,225, reached=True), PSNR 16.30 -> 11.17 dB (-5.13); fine-tune with --init_artifact to recover",
+  "artifact": "output/smoke/bunny_smoke/2_2_3_e5_size0.35M_L2\\pruned\\baseline_seed1_budget_pruned.pth"
+}

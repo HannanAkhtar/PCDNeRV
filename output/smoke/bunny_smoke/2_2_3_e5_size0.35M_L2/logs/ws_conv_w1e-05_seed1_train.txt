@@ -1,0 +1,70 @@
+
+================================================================================================
+  PCD-NeRV v2 run: ws_conv_w1e-05_seed1
+  method=weighted_sum  target=conv  tau=None  lambda_prox=None  ws_weight=1e-05  seed=1  warmup=0  epochs=5  device=cpu
+================================================================================================
+Param accounting | encoder_params=275,760 | decoder_head_params=346,450 | other_params=0 | trainable_params=622,210 | embedding_storage=384 | total_stored_representation=346,834
+Group-lasso target = 'conv'  (unit: post-shuffle channel = r^2 rows + biases)
+  decoder.1.conv.upconv.0.weight               shape=[512, 38, 1, 1]  r=4  channel-groups=32  group_size=624
+  decoder.2.conv.upconv.0.weight               shape=[432, 32, 3, 3]  r=4  channel-groups=27  group_size=4624
+  decoder.3.conv.upconv.0.weight               shape=[198, 27, 5, 5]  r=3  channel-groups=22  group_size=6084
+  decoder.4.conv.upconv.0.weight               shape=[72, 22, 5, 5]  r=2  channel-groups=18  group_size=2204
+  decoder.5.conv.upconv.0.weight               shape=[60, 18, 5, 5]  r=2  channel-groups=15  group_size=1804
+  -> 114 channel groups over 345396 targeted parameters (incl. biases)
+[2026/07/16 13:56:54] Epoch[1/5], Step [1/8], lr:1.00e-04 pred_PSNR: 11.46 | primary: 0.07138 | gl: 213.37
+[2026/07/16 13:56:55] Epoch[1/5], Step [8/8], lr:9.83e-04 pred_PSNR: 11.07 | primary: 0.07845 | gl: 207.32
+[2026/07/16 13:56:55] Eval at Step [1/12] , FPS 82.9, pred_seen_psnr: 11.01 | 
+[2026/07/16 13:56:56] Eval at Step [12/12] , FPS 85.9, pred_seen_psnr: 11.37 | 
+[2026/07/16 13:56:56] Eval at Step [1/12] , FPS 83.1, quant_seen_psnr: 11.01 | 
+[2026/07/16 13:56:57] Eval at Step [12/12] , FPS 78.3, quant_seen_psnr: 11.37 | 
+Epoch[1/5] TRAIN | method weighted_sum | primary(L2) 0.07845 | gl 207.32 | train_PSNR 11.07 | lr 9.83e-04 | 2.7s
+           WS    | total 0.08052 = primary + 1e-05 * gl
+           SPARSE| ch-groups 0/114 (0.00%) | dec+head 0/346450 (0.00%) | all 408/622210 (0.07%)
+           EVAL  | seen PSNR 11.37 SSIM 0.2679 | unseen PSNR 11.49 SSIM 0.2641 | quant seen PSNR 11.37 SSIM 0.2679
+[2026/07/16 13:56:57] Epoch[2/5], Step [1/8], lr:9.70e-04 pred_PSNR: 11.54 | primary: 0.07008 | gl: 198.01
+[2026/07/16 13:56:58] Epoch[2/5], Step [8/8], lr:7.87e-04 pred_PSNR: 13.08 | primary: 0.05054 | gl: 198.89
+[2026/07/16 13:56:58] Eval at Step [1/12] , FPS 73.7, pred_seen_psnr: 14.97 | 
+[2026/07/16 13:56:59] Eval at Step [12/12] , FPS 82.0, pred_seen_psnr: 14.81 | 
+[2026/07/16 13:56:59] Eval at Step [1/12] , FPS 78.8, quant_seen_psnr: 14.97 | 
+[2026/07/16 13:56:59] Eval at Step [12/12] , FPS 69.6, quant_seen_psnr: 14.81 | 
+Epoch[2/5] TRAIN | method weighted_sum | primary(L2) 0.05054 | gl 198.89 | train_PSNR 13.08 | lr 7.87e-04 | 2.6s
+           WS    | total 0.05253 = primary + 1e-05 * gl
+           SPARSE| ch-groups 0/114 (0.00%) | dec+head 1/346450 (0.00%) | all 1/622210 (0.00%)
+           EVAL  | seen PSNR 14.81 SSIM 0.3198 | unseen PSNR 14.72 SSIM 0.3146 | quant seen PSNR 14.81 SSIM 0.3199
+[2026/07/16 13:57:00] Epoch[3/5], Step [1/8], lr:7.50e-04 pred_PSNR: 14.95 | primary: 0.03195 | gl: 201.18
+[2026/07/16 13:57:00] Epoch[3/5], Step [8/8], lr:4.56e-04 pred_PSNR: 15.36 | primary: 0.02931 | gl: 202.18
+[2026/07/16 13:57:00] Eval at Step [1/12] , FPS 81.0, pred_seen_psnr: 16.27 | 
+[2026/07/16 13:57:01] Eval at Step [12/12] , FPS 85.5, pred_seen_psnr: 15.69 | 
+[2026/07/16 13:57:01] Eval at Step [1/12] , FPS 76.9, quant_seen_psnr: 16.27 | 
+[2026/07/16 13:57:02] Eval at Step [12/12] , FPS 71.2, quant_seen_psnr: 15.69 | 
+Epoch[3/5] TRAIN | method weighted_sum | primary(L2) 0.02931 | gl 202.18 | train_PSNR 15.36 | lr 4.56e-04 | 2.5s
+           WS    | total 0.03133 = primary + 1e-05 * gl
+           SPARSE| ch-groups 0/114 (0.00%) | dec+head 0/346450 (0.00%) | all 0/622210 (0.00%)
+           EVAL  | seen PSNR 15.69 SSIM 0.3791 | unseen PSNR 15.42 SSIM 0.3739 | quant seen PSNR 15.69 SSIM 0.3792
+[2026/07/16 13:57:02] Epoch[4/5], Step [1/8], lr:4.13e-04 pred_PSNR: 16.29 | primary: 0.02348 | gl: 202.95
+[2026/07/16 13:57:03] Epoch[4/5], Step [8/8], lr:1.46e-04 pred_PSNR: 15.85 | primary: 0.02656 | gl: 202.93
+[2026/07/16 13:57:03] Eval at Step [1/12] , FPS 83.7, pred_seen_psnr: 16.78 | 
+[2026/07/16 13:57:04] Eval at Step [12/12] , FPS 84.3, pred_seen_psnr: 16.17 | 
+[2026/07/16 13:57:04] Eval at Step [1/12] , FPS 73.8, quant_seen_psnr: 16.78 | 
+[2026/07/16 13:57:04] Eval at Step [12/12] , FPS 74.4, quant_seen_psnr: 16.18 | 
+Epoch[4/5] TRAIN | method weighted_sum | primary(L2) 0.02656 | gl 202.93 | train_PSNR 15.85 | lr 1.46e-04 | 2.5s
+           WS    | total 0.02859 = primary + 1e-05 * gl
+           SPARSE| ch-groups 0/114 (0.00%) | dec+head 0/346450 (0.00%) | all 0/622210 (0.00%)
+           EVAL  | seen PSNR 16.17 SSIM 0.3861 | unseen PSNR 15.89 SSIM 0.3798 | quant seen PSNR 16.18 SSIM 0.3863
+[2026/07/16 13:57:05] Epoch[5/5], Step [1/8], lr:1.17e-04 pred_PSNR: 16.78 | primary: 0.02099 | gl: 202.75
+[2026/07/16 13:57:05] Epoch[5/5], Step [8/8], lr:1.90e-06 pred_PSNR: 16.18 | primary: 0.02445 | gl: 202.72
+[2026/07/16 13:57:06] Eval at Step [1/12] , FPS 84.9, pred_seen_psnr: 16.79 | 
+[2026/07/16 13:57:06] Eval at Step [12/12] , FPS 83.5, pred_seen_psnr: 16.2 | 
+[2026/07/16 13:57:06] Eval at Step [1/12] , FPS 83.2, quant_seen_psnr: 16.79 | 
+[2026/07/16 13:57:07] Eval at Step [12/12] , FPS 78.4, quant_seen_psnr: 16.2 | 
+After quantization and encoding: 
+ bits per parameter: 8.17, bits per pixel: 3.2017
+Epoch[5/5] TRAIN | method weighted_sum | primary(L2) 0.02445 | gl 202.72 | train_PSNR 16.18 | lr 1.90e-06 | 2.6s
+           WS    | total 0.02647 = primary + 1e-05 * gl
+           SPARSE| ch-groups 0/114 (0.00%) | dec+head 0/346450 (0.00%) | all 0/622210 (0.00%)
+           EVAL  | seen PSNR 16.20 SSIM 0.3865 | unseen PSNR 15.92 SSIM 0.3796 | quant seen PSNR 16.20 SSIM 0.3866
+  Saved checkpoint output\smoke\bunny_smoke/2_2_3_e5_size0.35M_L2\checkpoints\ws_conv_w1e-05_seed1_ep005.pth
+Training complete in: 0:00:13.089055
+  Saved output\smoke\bunny_smoke/2_2_3_e5_size0.35M_L2\reports\ws_conv_w1e-05_seed1_sparsity_breakdown.txt
+  Saved output\smoke\bunny_smoke/2_2_3_e5_size0.35M_L2\reports\ws_conv_w1e-05_seed1_checkpoint_progress.txt
+  Saved output\smoke\bunny_smoke/2_2_3_e5_size0.35M_L2\results\ws_conv_w1e-05_seed1.json
