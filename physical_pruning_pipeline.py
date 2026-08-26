@@ -56,7 +56,7 @@ from shared.physical_pruning import (
 )
 from shared.accounting import (
     param_accounting, decoder_head_state, state_bytes, count_params,
-    measure_decoder_flops, measure_decode_latency,
+    measure_decoder_flops, measure_decode_latency, model_device,
 )
 
 
@@ -83,12 +83,15 @@ def parse_args():
 
 def build_run_model(config, ckpt_path):
     """Rebuild the run's model (dense, or from its init artifact) and load weights."""
-    ckpt = torch.load(ckpt_path, map_location='cpu')
+    try:
+        ckpt = torch.load(ckpt_path, map_location='cpu', weights_only=False)
+    except TypeError:  # PyTorch < 2.0 compatibility
+        ckpt = torch.load(ckpt_path, map_location='cpu')
     if config.get('init_artifact'):
         model, _ = load_pruned_artifact(config['init_artifact'])
     else:
         model = build_model_from_config(config)
-    model.load_state_dict(ckpt['state_dict'])
+    model.load_state_dict(ckpt['state_dict'], strict=True)
     model.eval()
     return model
 
@@ -308,8 +311,11 @@ def main():
              'reduction_pct': red(flops_before, flops_after)}
     lat_before = measure_decode_latency(dense, probe, runs=args.bench_runs)
     lat_after = measure_decode_latency(pruned, probe, runs=args.bench_runs)
+    before_device, after_device = model_device(dense), model_device(pruned)
+    if before_device != after_device:
+        raise AssertionError(f'latency models are on different devices: {before_device} vs {after_device}')
     latency = {'before': lat_before, 'after': lat_after,
-               'runs': args.bench_runs, 'device': 'cuda' if torch.cuda.is_available() else 'cpu'}
+               'runs': args.bench_runs, 'device': str(before_device)}
 
     widths = {
         'head_in_before': dense.head_layer.in_channels,

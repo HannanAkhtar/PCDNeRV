@@ -281,10 +281,13 @@ def save_pruned_artifact(path, model, plans, head_keep_in, config, extra=None):
 
 
 def load_pruned_artifact(path, map_location='cpu'):
-    payload = torch.load(path, map_location=map_location)
+    try:
+        payload = torch.load(path, map_location=map_location, weights_only=False)
+    except TypeError:  # PyTorch < 2.0 compatibility
+        payload = torch.load(path, map_location=map_location)
     assert payload.get('format') == ARTIFACT_FORMAT, 'not a PCD-NeRV v2 pruned artifact'
     model = build_model_from_config(payload['config'])
     plans = [BlockPlan(**p) for p in payload['plans']]
     apply_prune_plan(model, plans, payload['head_keep_in'])
-    model.load_state_dict(payload['state_dict'])
+    model.load_state_dict(payload['state_dict'], strict=True)
     return model, payload
