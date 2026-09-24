@@ -52,6 +52,15 @@ pruning recomputes current costs after every removal and ranks groups by
 `||theta_g||_2/c_g`. Every method uses the repository's existing
 PixelShuffle-aware, bias-inclusive groups and the same minimum-width rule.
 
+Physical surgery remains protected by a numerical-equivalence check between
+the dense model with removed channels zeroed and the physically rebuilt
+smaller model. `--prune_equivalence_atol` defaults to `5e-4` (with a small
+`1e-5` relative tolerance) to accommodate CUDA/cuDNN kernel and accumulation
+order differences. Pruning events record maximum, mean, and RMSE equivalence
+errors. This threshold validates implementation correctness only; it is **not**
+a pruning-quality tolerance and does not affect plans, norms, or compute
+targets.
+
 ## Wall-clock definition
 
 `budget_fraction = counted_training_seconds / budget_seconds` using

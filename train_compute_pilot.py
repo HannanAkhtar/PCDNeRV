@@ -79,6 +79,7 @@ def parse_args(argv=None):
     parser.add_argument("--lambda_gl", type=float, default=1e-5)
     parser.add_argument("--removal_eps", type=float, default=1e-4)
     parser.add_argument("--min_keep", type=int, default=1)
+    parser.add_argument("--prune_equivalence_atol", type=float, default=5e-4)
     parser.add_argument("--m4_use_prox", action="store_true")
     parser.add_argument("--m4_lambda_prox", type=float, default=0.0)
     parser.add_argument("--beta_ema", type=float, default=0.999)
@@ -130,6 +131,8 @@ def parse_args(argv=None):
         parser.error("--kappa must be in [0, 1)")
     if args.compute_match_tolerance < 0:
         parser.error("--compute_match_tolerance must be non-negative")
+    if args.prune_equivalence_atol <= 0:
+        parser.error("--prune_equivalence_atol must be positive")
     if args.monitor_every_fraction < 0:
         parser.error("--monitor_every_fraction must be non-negative")
     if args.monitor_frames < 1:
@@ -379,6 +382,7 @@ def _prune_event(
     min_keep,
     eligible_eps,
     allow_overshoot,
+    equivalence_tol,
 ):
     plans, head_keep, info = compute_target_prune_plan(
         model,
@@ -392,11 +396,22 @@ def _prune_event(
     if info["groups_removed"]:
         surgery = apply_progressive_prune_plan(
             model, optimizer, plans, head_keep,
-            verify_embedding=embedding, equivalence_tol=1e-5,
+            verify_embedding=embedding, equivalence_tol=equivalence_tol,
         )
-        info["max_equivalence_error"] = surgery["max_equivalence_error"]
+        info.update({
+            key: surgery[key]
+            for key in (
+                "max_equivalence_error",
+                "mean_equivalence_error",
+                "rmse_equivalence_error",
+            )
+        })
     else:
-        info["max_equivalence_error"] = 0.0
+        info.update({
+            "max_equivalence_error": 0.0,
+            "mean_equivalence_error": 0.0,
+            "rmse_equivalence_error": 0.0,
+        })
     return info
 
 
@@ -625,6 +640,7 @@ def run(
                         start_macs=start_macs, target_macs=target_macs,
                         min_keep=args.min_keep, eligible_eps=None,
                         allow_overshoot=True,
+                        equivalence_tol=args.prune_equivalence_atol,
                     )
                 hard_done = True
                 cumulative_removed += event["groups_removed"]
@@ -691,6 +707,7 @@ def run(
                         start_macs=start_macs, target_macs=scheduled_target,
                         min_keep=args.min_keep, eligible_eps=eligible_eps,
                         allow_overshoot=allow_overshoot,
+                        equivalence_tol=args.prune_equivalence_atol,
                     )
                 if event["groups_removed"]:
                     cumulative_removed += event["groups_removed"]
@@ -718,6 +735,7 @@ def run(
                         start_macs=start_macs, target_macs=target_macs,
                         min_keep=args.min_keep, eligible_eps=None,
                         allow_overshoot=True,
+                        equivalence_tol=args.prune_equivalence_atol,
                     )
                 hard_done = True
                 cumulative_removed += event["groups_removed"]

@@ -77,6 +77,11 @@ class RecordingEvaluator:
 
 
 class ExecutionReliabilityTests(unittest.TestCase):
+    def test_prune_equivalence_cli_default(self):
+        with tempfile.TemporaryDirectory() as directory:
+            args = tiny_pilot_args(Path(directory) / "run")
+        self.assertEqual(args.prune_equivalence_atol, 5e-4)
+
     def test_checkpoint_fraction_schedule(self):
         boundary = next_fraction_checkpoint(0.0, 0.10)
         self.assertAlmostEqual(boundary, 0.10)

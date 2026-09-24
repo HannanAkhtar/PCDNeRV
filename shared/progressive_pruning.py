@@ -22,6 +22,8 @@ from shared.physical_pruning import (
 
 
 PILOT_CHECKPOINT_FORMAT = "pcd-nerv-compute-pilot-v1"
+DEFAULT_PRUNE_EQUIVALENCE_ATOL = 5e-4
+PRUNE_EQUIVALENCE_RTOL = 1e-5
 
 
 def _rows_for_channels(channels, r):
@@ -106,6 +108,49 @@ def zero_removed_groups(model, plans):
                 conv.bias.data[rows] = 0
 
 
+def prune_equivalence_statistics(zeroed_output, rebuilt_output):
+    """Return explicit absolute-error statistics for physical surgery."""
+    difference = (zeroed_output - rebuilt_output).detach().abs().double()
+    if difference.numel() == 0:
+        return {
+            "max_equivalence_error": 0.0,
+            "mean_equivalence_error": 0.0,
+            "rmse_equivalence_error": 0.0,
+        }
+    return {
+        "max_equivalence_error": float(difference.max()),
+        "mean_equivalence_error": float(difference.mean()),
+        "rmse_equivalence_error": float(difference.square().mean().sqrt()),
+    }
+
+
+def verify_prune_equivalence(
+    zeroed_output,
+    rebuilt_output,
+    *,
+    atol=DEFAULT_PRUNE_EQUIVALENCE_ATOL,
+    rtol=PRUNE_EQUIVALENCE_RTOL,
+):
+    """Validate surgery while retaining inspectable absolute-error metrics."""
+    statistics = prune_equivalence_statistics(zeroed_output, rebuilt_output)
+    try:
+        torch.testing.assert_close(
+            zeroed_output,
+            rebuilt_output,
+            atol=float(atol),
+            rtol=float(rtol),
+        )
+    except AssertionError as error:
+        raise AssertionError(
+            "zeroed/physical prune mismatch: "
+            f"max={statistics['max_equivalence_error']:.6g}, "
+            f"mean={statistics['mean_equivalence_error']:.6g}, "
+            f"rmse={statistics['rmse_equivalence_error']:.6g}, "
+            f"atol={float(atol):.6g}, rtol={float(rtol):.6g}"
+        ) from error
+    return statistics
+
+
 @torch.no_grad()
 def apply_progressive_prune_plan(
     model,
@@ -114,7 +159,7 @@ def apply_progressive_prune_plan(
     head_keep_in,
     *,
     verify_embedding=None,
-    equivalence_tol=1e-5,
+    equivalence_tol=DEFAULT_PRUNE_EQUIVALENCE_ATOL,
 ):
     """Zero, verify, physically rebuild, and migrate optimizer state."""
     core = model.module if hasattr(model, "module") else model
@@ -186,17 +231,22 @@ def apply_progressive_prune_plan(
 
     _replace_optimizer_parameters(optimizer, replacements)
     assert_optimizer_state_shapes(optimizer)
-    max_difference = 0.0
+    equivalence = {
+        "max_equivalence_error": 0.0,
+        "mean_equivalence_error": 0.0,
+        "rmse_equivalence_error": 0.0,
+    }
     if verify_embedding is not None:
         rebuilt_output = HNeRVDecoder(core)(verify_embedding)
-        max_difference = float((zeroed_output - rebuilt_output).abs().max())
-        if max_difference >= equivalence_tol:
-            raise AssertionError(
-                f"zeroed/physical prune mismatch {max_difference:.3g} >= {equivalence_tol}"
-            )
+        equivalence = verify_prune_equivalence(
+            zeroed_output,
+            rebuilt_output,
+            atol=equivalence_tol,
+            rtol=PRUNE_EQUIVALENCE_RTOL,
+        )
     return {
         "replacements": replacements,
-        "max_equivalence_error": max_difference,
+        **equivalence,
         "layers": get_channel_group_layers(core, "conv"),
         "groups_removed": sum(
             plan.channels_before - len(plan.keep_channels) for plan in plans
