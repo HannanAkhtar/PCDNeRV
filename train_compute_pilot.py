@@ -53,6 +53,7 @@ from shared.wallclock import (
     hard_prune_due,
     pilot_phase,
     set_learning_rate,
+    synchronization_callback_for,
     threshold_removal_active,
 )
 from shared.physical_pruning import build_model_from_config
@@ -69,6 +70,7 @@ def parse_args(argv=None):
     parser.add_argument("--replay_artifact", default="")
     parser.add_argument("--target_params", type=int, default=0)
     parser.add_argument("--candidate_sizes", default="")
+    parser.add_argument("--compute_match_tolerance", type=float, default=0.02)
 
     parser.add_argument("--tau", type=float, default=0.05)
     parser.add_argument("--lambda_gl", type=float, default=1e-5)
@@ -117,6 +119,8 @@ def parse_args(argv=None):
     args = parser.parse_args(argv)
     if not 0 <= args.kappa < 1:
         parser.error("--kappa must be in [0, 1)")
+    if args.compute_match_tolerance < 0:
+        parser.error("--compute_match_tolerance must be non-negative")
     if args.method == "d_replay" and not args.replay_artifact:
         parser.error("d_replay requires --replay_artifact")
     if args.method == "d_small_params" and args.target_params <= 0:
@@ -179,6 +183,58 @@ def _base_config(args, frame_count, output_hw):
     return derive_hnerv_config_for_modelsize(
         base, args.modelsize, frame_count=frame_count, output_hw=output_hw
     )
+
+
+_ARCHITECTURE_KEYS = (
+    "arch", "crop_list", "resize_list", "embed", "enc_strds", "enc_dim",
+    "dec_strds", "fc_hw", "fc_dim", "ks", "reduce", "lower_width",
+    "num_blks", "conv_type", "norm", "act", "out_bias", "modelsize",
+    "saturate_stages",
+)
+
+
+def _architecture_signature(config):
+    return {key: config.get(key) for key in _ARCHITECTURE_KEYS}
+
+
+def _validate_resume_configuration(payload, args, base_config):
+    """Reject resume commands that would alter the checkpointed experiment."""
+    errors = []
+    checks = (
+        ("method", payload.get("method"), args.method),
+        ("kappa", payload.get("kappa"), args.kappa),
+        ("seed", payload.get("seed"), args.manualSeed),
+        ("budget_seconds", payload.get("budget_seconds"), args.budget_seconds),
+    )
+    for name, checkpoint_value, command_value in checks:
+        if checkpoint_value != command_value:
+            errors.append(
+                f"{name}: checkpoint={checkpoint_value!r}, command={command_value!r}"
+            )
+
+    selection = payload.get("selection")
+    if not isinstance(selection, dict) or "base_config" not in selection:
+        errors.append("checkpoint does not contain original selection/base architecture metadata")
+    elif _architecture_signature(selection["base_config"]) != _architecture_signature(base_config):
+        errors.append(
+            "base/original architecture differs from the checkpoint: "
+            f"checkpoint={_architecture_signature(selection['base_config'])!r}, "
+            f"command={_architecture_signature(base_config)!r}"
+        )
+    if "history" not in payload:
+        errors.append("checkpoint does not contain complete training history")
+    elif (
+        not isinstance(payload["history"], list)
+        or not isinstance(payload.get("epoch"), int)
+        or len(payload["history"]) != payload["epoch"]
+    ):
+        rows = len(payload["history"]) if isinstance(payload["history"], list) else "invalid"
+        errors.append(
+            "checkpoint history is incomplete: "
+            f"epoch={payload.get('epoch')!r}, rows={rows}"
+        )
+    if errors:
+        raise ValueError("resume configuration mismatch:\n  - " + "\n  - ".join(errors))
 
 
 def _sample_embedding(model, sample_input):
@@ -306,6 +362,7 @@ def _select_initial_model(args, base_config, sample_image, frame_count):
             sample_image,
             frame_count=frame_count,
             candidate_model_sizes=sizes or None,
+            tolerance=args.compute_match_tolerance,
         )
         _seed_everything(args.manualSeed)
         model = build_model_from_config(selected_config).to(sample_image.device)
@@ -341,6 +398,7 @@ def _select_initial_model(args, base_config, sample_image, frame_count):
     else:
         model = start_model
     model.train()
+    selection["base_config"] = dict(base_config)
     selection["selected_config"] = selected_config
     return model, selected_config, start_macs, target_macs, selection
 
@@ -349,6 +407,7 @@ def run(args):
     output_dir = Path(args.outf).expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     device = torch.device(args.device)
+    synchronize_fn = synchronization_callback_for(device)
     _seed_everything(args.manualSeed)
 
     dataset_args = argparse.Namespace(
@@ -374,18 +433,23 @@ def run(args):
     resume = checkpoint_path.is_file() and not args.no_resume
     if resume:
         model, optimizer, solver, payload = load_pilot_checkpoint(checkpoint_path, device=device)
+        _validate_resume_configuration(payload, args, base_config)
         original_config = payload["original_config"]
         selected_config = dict(original_config)
         start_macs = int(payload["start_MACs"])
-        target_macs = start_macs * (1.0 - args.kappa)
+        target_macs = start_macs * (1.0 - float(payload["kappa"]))
         budget = ActiveTrainingBudget(
-            args.budget_seconds, elapsed=payload["counted_training_seconds"]
+            args.budget_seconds,
+            elapsed=payload["counted_training_seconds"],
+            synchronize_fn=synchronize_fn,
         )
         epoch = int(payload["epoch"])
         optimizer_steps = int(payload["optimizer_steps"])
         removal_events = list(payload["removal_history"])
         frozen_costs = dict(payload["frozen_layer_costs"])
-        selection = {"resumed_from": str(checkpoint_path)}
+        selection = dict(payload["selection"])
+        selection["resumed_from"] = str(checkpoint_path)
+        history = list(payload["history"])
     else:
         model, selected_config, start_macs, target_macs, selection = _select_initial_model(
             args, base_config, first_image, architecture_frame_count
@@ -396,15 +460,17 @@ def run(args):
             PCDSolver(tau=args.tau, beta=args.beta_ema, eps=args.solver_eps)
             if args.method == "m4_pcd" else None
         )
-        budget = ActiveTrainingBudget(args.budget_seconds)
+        budget = ActiveTrainingBudget(
+            args.budget_seconds, synchronize_fn=synchronize_fn
+        )
         epoch = 0
         optimizer_steps = 0
         removal_events = []
         frozen_costs = normalized_layer_costs(
             compute_group_mac_costs(model, _sample_embedding(model, first_image))
         )
+        history = []
 
-    history = []
     hard_done = any(row.get("event") == "hard_0.9W" for row in removal_events)
     time_to_kappa = next(
         (row.get("counted_training_seconds") for row in removal_events if row.get("target_reached")),
@@ -595,6 +661,9 @@ def run(args):
                 optimizer_steps=optimizer_steps,
                 removal_history=removal_events,
                 frozen_layer_costs=frozen_costs,
+                history=history,
+                selection=selection,
+                seed=args.manualSeed,
                 solver=solver,
                 metrics=row,
             )
@@ -618,6 +687,15 @@ def run(args):
     architecture_metrics = _current_metrics(model, embedding, start_macs, output_hw)
     final_macs = int(architecture_metrics["current_MACs"])
     hard_events = [row for row in removal_events if row.get("event") == "hard_0.9W"]
+    compute_matched_method = args.method == "d_small_compute" or args.method.startswith("m")
+    relative_compute_target_error = (
+        abs(final_macs - target_macs) / float(target_macs)
+        if compute_matched_method and target_macs > 0 else None
+    )
+    within_compute_tolerance = (
+        relative_compute_target_error <= args.compute_match_tolerance
+        if relative_compute_target_error is not None else None
+    )
     fps = ""
     timing = None
     if not args.no_final_fps and device.type == "cuda":
@@ -644,6 +722,9 @@ def run(args):
         "undershoot_MACs": max(0.0, final_macs - target_macs),
         "target_reached": final_macs <= target_macs,
         "target_reachable": hard_events[-1].get("target_reachable") if hard_events else None,
+        "compute_match_tolerance": args.compute_match_tolerance,
+        "relative_compute_target_error": relative_compute_target_error,
+        "within_compute_tolerance": within_compute_tolerance,
         "final_FPS": fps,
         "timing": timing,
         "final_widths": decoder_layer_widths(model),

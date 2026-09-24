@@ -15,6 +15,40 @@ class FakeClock:
 
 
 class WallClockBudgetTests(unittest.TestCase):
+    def test_synchronizes_immediately_around_counted_interval(self):
+        events = []
+
+        class RecordingClock:
+            value = 0.0
+
+            def __call__(self):
+                events.append(("clock", self.value))
+                return self.value
+
+        clock = RecordingClock()
+
+        def synchronize():
+            events.append(("sync", clock.value))
+
+        budget = ActiveTrainingBudget(
+            2.0, time_fn=clock, synchronize_fn=synchronize
+        )
+        with budget.measure():
+            events.append(("work", clock.value))
+            clock.value += 0.75
+
+        self.assertEqual(
+            events,
+            [
+                ("sync", 0.0),
+                ("clock", 0.0),
+                ("work", 0.0),
+                ("sync", 0.75),
+                ("clock", 0.75),
+            ],
+        )
+        self.assertAlmostEqual(budget.counted_training_seconds, 0.75)
+
     def test_only_measured_intervals_count_and_stop_after_step(self):
         clock = FakeClock()
         budget = ActiveTrainingBudget(1.0, time_fn=clock)

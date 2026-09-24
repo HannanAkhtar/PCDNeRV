@@ -254,6 +254,9 @@ def save_pilot_checkpoint(
     optimizer_steps,
     removal_history,
     frozen_layer_costs,
+    history,
+    selection,
+    seed,
     solver=None,
     metrics=None,
 ):
@@ -266,7 +269,7 @@ def save_pilot_checkpoint(
         }
     payload = {
         "format": PILOT_CHECKPOINT_FORMAT,
-        "version": 1,
+        "version": 2,
         "original_config": dict(original_config),
         "current_plans": [asdict(plan) for plan in plans],
         "head_keep_in": head_keep,
@@ -284,6 +287,9 @@ def save_pilot_checkpoint(
         "optimizer_steps": int(optimizer_steps),
         "removal_history": list(removal_history),
         "frozen_layer_costs": dict(frozen_layer_costs),
+        "history": list(history),
+        "selection": copy.deepcopy(selection),
+        "seed": int(seed),
         "solver_state": solver_state,
         "metrics": dict(metrics or {}),
         "rng_state": _rng_state(),

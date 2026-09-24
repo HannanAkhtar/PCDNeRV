@@ -45,6 +45,9 @@ class ProgressiveResumeTests(unittest.TestCase):
                 epoch=3, optimizer_steps=17,
                 removal_history=[{'groups_removed': 1}],
                 frozen_layer_costs={'decoder.1.conv.upconv.0': 1.0},
+                history=[{'epoch': 1}, {'epoch': 2}, {'epoch': 3}],
+                selection={'base_config': config, 'source': 'test'},
+                seed=4,
                 solver=solver, metrics={'PSNR': 20.0},
             )
             resumed, resumed_optimizer, resumed_solver, payload = load_pilot_checkpoint(
@@ -59,6 +62,9 @@ class ProgressiveResumeTests(unittest.TestCase):
         ))
         self.assertEqual(payload['counted_training_seconds'], 12.5)
         self.assertEqual(payload['metrics']['PSNR'], 20.0)
+        self.assertEqual(payload['history'], [{'epoch': 1}, {'epoch': 2}, {'epoch': 3}])
+        self.assertEqual(payload['selection']['source'], 'test')
+        self.assertEqual(payload['seed'], 4)
         self.assertEqual(resumed_solver.t, 5)
         self.assertEqual(resumed_solver.v, [2.0, 3.0])
         self.assertTrue(resumed_optimizer.state)

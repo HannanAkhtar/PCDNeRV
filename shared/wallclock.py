@@ -6,6 +6,8 @@ import math
 import time
 from contextlib import contextmanager
 
+import torch
+
 
 PILOT_METHODS = (
     "d_start", "d_small_compute", "d_small_params", "d_replay",
@@ -16,11 +18,18 @@ PILOT_METHODS = (
 class ActiveTrainingBudget:
     """Accumulate only explicitly measured active-training intervals."""
 
-    def __init__(self, budget_seconds, time_fn=time.perf_counter, elapsed=0.0):
+    def __init__(
+        self,
+        budget_seconds,
+        time_fn=time.perf_counter,
+        elapsed=0.0,
+        synchronize_fn=None,
+    ):
         if budget_seconds <= 0:
             raise ValueError("budget_seconds must be positive")
         self.budget_seconds = float(budget_seconds)
         self.time_fn = time_fn
+        self.synchronize_fn = synchronize_fn
         self.counted_training_seconds = float(elapsed)
 
     @property
@@ -42,10 +51,14 @@ class ActiveTrainingBudget:
 
     @contextmanager
     def measure(self):
+        if self.synchronize_fn is not None:
+            self.synchronize_fn()
         start = self.time_fn()
         try:
             yield
         finally:
+            if self.synchronize_fn is not None:
+                self.synchronize_fn()
             self.add_duration(self.time_fn() - start)
 
     def completed_optimizer_step(self, step_fn):
@@ -53,6 +66,15 @@ class ActiveTrainingBudget:
         with self.measure():
             result = step_fn()
         return result, self.exhausted
+
+
+def synchronization_callback_for(device):
+    """Return CUDA synchronization only for a CUDA execution device."""
+    if torch.device(device).type == "cuda":
+        if not torch.cuda.is_available():
+            raise RuntimeError("CUDA device requested, but CUDA is not available")
+        return torch.cuda.synchronize
+    return None
 
 
 def learning_rate_at_fraction(base_lr, lr_type, fraction):

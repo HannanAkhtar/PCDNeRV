@@ -11,7 +11,9 @@ FULL_COLUMNS = [
     "method", "seed", "kappa", "W_seconds", "final_PSNR", "final_MS_SSIM",
     "decoder_head_params", "GMACs", "GFLOPs", "kMACs_per_pixel",
     "achieved_kappa", "final_FPS", "optimizer_steps", "completed_epochs",
-    "time_to_kappa", "final_widths", "source_run",
+    "time_to_kappa", "compute_match_tolerance",
+    "relative_compute_target_error", "within_compute_tolerance",
+    "final_widths", "source_run",
 ]
 MEETING_COLUMNS = [
     "Method", "kappa", "Params_M", "GFLOPs", "PSNR_dB", "FPS", "Steps",
@@ -52,6 +54,11 @@ def summarize(root, output_dir=None):
             "optimizer_steps": result.get("optimizer_steps", ""),
             "completed_epochs": result.get("completed_epochs", ""),
             "time_to_kappa": result.get("time_to_kappa", ""),
+            "compute_match_tolerance": result.get("compute_match_tolerance", ""),
+            "relative_compute_target_error": result.get(
+                "relative_compute_target_error", ""
+            ),
+            "within_compute_tolerance": result.get("within_compute_tolerance", ""),
             "final_widths": json.dumps(result.get("final_widths", []), separators=(",", ":")),
             "source_run": str(path.parent),
         })
