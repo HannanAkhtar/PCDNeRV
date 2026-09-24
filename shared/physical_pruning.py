@@ -194,6 +194,22 @@ def _build_plans(model, layers, keep_sets, group_thr=1e-4):
     return plans, in_keep  # in_keep of the last block = head input keep
 
 
+def build_prune_plan_from_keep_sets(model, keep_sets, group_thr=1e-4):
+    """Build a physical plan from explicit channel keeps.
+
+    This public wrapper is used by the compute-pilot machinery.  It preserves
+    the legacy plan representation and the existing PixelShuffle-aware group
+    definition.
+    """
+    layers = get_channel_group_layers(model, 'conv')
+    if len(keep_sets) != len(layers):
+        raise ValueError('one keep set is required for every targeted layer')
+    for layer, keep in zip(layers, keep_sets):
+        if not keep or min(keep) < 0 or max(keep) >= layer.channels:
+            raise ValueError(f'invalid keep set for {layer.conv_path}: {keep}')
+    return _build_plans(model, layers, keep_sets, group_thr=group_thr)
+
+
 # ── surgery ───────────────────────────────────────────────────────────────────
 
 def _rows_for_channels(channels, r):
@@ -216,8 +232,9 @@ def apply_prune_plan(model, plans, head_keep_in):
         new_conv = nn.Conv2d(
             len(keep_in), len(keep_rows),
             kernel_size=conv.kernel_size, stride=conv.stride,
-            padding=conv.padding, bias=conv.bias is not None,
-        )
+            padding=conv.padding, dilation=conv.dilation, groups=conv.groups,
+            bias=conv.bias is not None, padding_mode=conv.padding_mode,
+        ).to(device=conv.weight.device, dtype=conv.weight.dtype)
         with torch.no_grad():
             new_conv.weight.copy_(conv.weight.data[keep_rows][:, keep_in])
             if conv.bias is not None:
@@ -238,8 +255,9 @@ def apply_prune_plan(model, plans, head_keep_in):
         new_head = nn.Conv2d(
             len(head_keep_in), head.out_channels,
             kernel_size=head.kernel_size, stride=head.stride,
-            padding=head.padding, bias=head.bias is not None,
-        )
+            padding=head.padding, dilation=head.dilation, groups=head.groups,
+            bias=head.bias is not None, padding_mode=head.padding_mode,
+        ).to(device=head.weight.device, dtype=head.weight.dtype)
         with torch.no_grad():
             new_head.weight.copy_(head.weight.data[:, head_keep_in])
             if head.bias is not None:

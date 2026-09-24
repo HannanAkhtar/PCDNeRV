@@ -75,6 +75,21 @@ def group_lasso_loss(layers):
     return loss
 
 
+def weighted_group_lasso_loss(layers, layer_costs):
+    """Compute ``sum_g c_g ||theta_g||_2`` using frozen layer costs.
+
+    ``layer_costs`` maps each stable ``conv_path`` to its normalized MAC cost.
+    The legacy unweighted objective above is deliberately unchanged.
+    """
+    device = layers[0].conv.weight.device if layers else 'cpu'
+    loss = torch.tensor(0.0, device=device)
+    for layer in layers:
+        if layer.conv_path not in layer_costs:
+            raise KeyError(f'missing compute cost for {layer.conv_path}')
+        loss = loss + float(layer_costs[layer.conv_path]) * layer.group_norms().sum()
+    return loss
+
+
 @torch.no_grad()
 def apply_group_prox(layers, threshold):
     """
