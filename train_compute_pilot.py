@@ -21,7 +21,7 @@ import torch
 from torch.utils.data import DataLoader, Subset
 
 from evaluate_saved_models import evaluate_quality_and_embeddings
-from hnerv_utils import loss_fn
+from hnerv_utils import loss_fn, psnr_fn_single
 from model_all import TransformInput, VideoDataSet
 from shared.accounting import (
     benchmark_decoder_cuda,
@@ -46,11 +46,14 @@ from shared.progressive_pruning import (
     load_pilot_checkpoint,
     save_pilot_checkpoint,
 )
+from shared.runtime import validate_cuda_environment
 from shared.wallclock import (
     ActiveTrainingBudget,
     PILOT_METHODS,
     gradual_kappa_target,
     hard_prune_due,
+    fraction_checkpoint_due,
+    next_fraction_checkpoint,
     pilot_phase,
     set_learning_rate,
     synchronization_callback_for,
@@ -109,8 +112,14 @@ def parse_args(argv=None):
     parser.add_argument("--lr_type", default="cosine_0.1_1_0.1")
     parser.add_argument("--loss", default="L2")
     parser.add_argument("--max_epochs", type=int, default=100000)
-    parser.add_argument("--eval_every", type=int, default=1)
-    parser.add_argument("--checkpoint_every", type=int, default=1)
+    parser.add_argument("--eval_every", type=int, default=0)
+    parser.add_argument("--monitor_every_fraction", type=float, default=0.0)
+    parser.add_argument("--monitor_frames", type=int, default=8)
+    parser.add_argument("--checkpoint_every", type=int, default=0)
+    parser.add_argument("--checkpoint_every_fraction", type=float, default=0.10)
+    parser.add_argument(
+        "--msssim_device", choices=("cpu", "cuda", "auto"), default="cpu"
+    )
     parser.add_argument("--manualSeed", type=int, default=1)
     parser.add_argument("--device", choices=("cuda", "cpu"), default="cuda")
     parser.add_argument("--fps_warmup", type=int, default=100)
@@ -121,6 +130,12 @@ def parse_args(argv=None):
         parser.error("--kappa must be in [0, 1)")
     if args.compute_match_tolerance < 0:
         parser.error("--compute_match_tolerance must be non-negative")
+    if args.monitor_every_fraction < 0:
+        parser.error("--monitor_every_fraction must be non-negative")
+    if args.monitor_frames < 1:
+        parser.error("--monitor_frames must be positive")
+    if args.checkpoint_every < 0 or args.checkpoint_every_fraction < 0:
+        parser.error("checkpoint cadences must be non-negative")
     if args.method == "d_replay" and not args.replay_artifact:
         parser.error("d_replay requires --replay_artifact")
     if args.method == "d_small_params" and args.target_params <= 0:
@@ -142,6 +157,46 @@ def _write_csv(path, rows):
         writer = csv.DictWriter(handle, fieldnames=columns, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(rows)
+
+
+def _write_csv_if_changed(path, rows, previously_written):
+    """Rewrite a recovery CSV only when its in-memory row count changed."""
+    path = Path(path)
+    if len(rows) == previously_written and path.is_file():
+        return previously_written, False
+    if rows:
+        _write_csv(path, rows)
+    return len(rows), bool(rows)
+
+
+def _evenly_spaced_indices(frame_count, requested=8):
+    count = min(int(frame_count), int(requested))
+    if count <= 0:
+        return []
+    return sorted({int(round(value)) for value in np.linspace(0, frame_count - 1, count)})
+
+
+@torch.no_grad()
+def _evaluate_psnr_monitor(model, dataset, transform, config, device, indices):
+    """PSNR-only deterministic monitor; embeddings are never retained."""
+    was_training = model.training
+    model.eval()
+    values = []
+    for index in indices:
+        sample = dataset[index]
+        image = sample["img"].unsqueeze(0).to(device=device, dtype=torch.float32)
+        image_in, image_gt, _ = transform(image)
+        if "pe" in str(config.get("embed", "")):
+            model_input = torch.as_tensor(
+                [sample["norm_idx"]], device=device, dtype=torch.float32
+            )
+        else:
+            model_input = image_in
+        output, _, _ = model(model_input)
+        values.extend(float(value) for value in psnr_fn_single(output, image_gt).flatten())
+    if was_training:
+        model.train()
+    return sum(values) / len(values)
 
 
 def _seed_everything(seed):
@@ -403,10 +458,18 @@ def _select_initial_model(args, base_config, sample_image, frame_count):
     return model, selected_config, start_macs, target_macs, selection
 
 
-def run(args):
+def run(
+    args,
+    *,
+    quality_evaluator=evaluate_quality_and_embeddings,
+    monitor_evaluator=None,
+):
     output_dir = Path(args.outf).expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     device = torch.device(args.device)
+    runtime_environment = validate_cuda_environment(
+        require_cuda=device.type == "cuda", report=True
+    )
     synchronize_fn = synchronization_callback_for(device)
     _seed_everything(args.manualSeed)
 
@@ -450,6 +513,7 @@ def run(args):
         selection = dict(payload["selection"])
         selection["resumed_from"] = str(checkpoint_path)
         history = list(payload["history"])
+        monitor_history = list(payload.get("monitor_history", []))
     else:
         model, selected_config, start_macs, target_macs, selection = _select_initial_model(
             args, base_config, first_image, architecture_frame_count
@@ -470,6 +534,7 @@ def run(args):
             compute_group_mac_costs(model, _sample_embedding(model, first_image))
         )
         history = []
+        monitor_history = []
 
     hard_done = any(row.get("event") == "hard_0.9W" for row in removal_events)
     time_to_kappa = next(
@@ -477,11 +542,56 @@ def run(args):
         None,
     )
     cumulative_removed = sum(int(row.get("groups_removed", 0)) for row in removal_events)
-    final_quality = {}
-    final_embeddings = []
     live_current_macs = int(
         measure_decoder_compute(model, _sample_embedding(model, first_image))["total_MACs"]
     )
+    history_path = output_dir / "history.csv"
+    removal_path = output_dir / "removal_events.csv"
+    monitor_path = output_dir / "monitor.csv"
+    history_csv_rows = len(history) if history_path.is_file() else -1
+    removal_csv_rows = len(removal_events) if removal_path.is_file() else -1
+    monitor_csv_rows = len(monitor_history) if monitor_path.is_file() else -1
+    next_checkpoint = next_fraction_checkpoint(
+        budget.schedule_fraction, args.checkpoint_every_fraction
+    )
+    next_monitor = next_fraction_checkpoint(
+        budget.schedule_fraction, args.monitor_every_fraction
+    )
+    monitor_indices = _evenly_spaced_indices(len(full_dataset), args.monitor_frames)
+
+    def save_recovery_checkpoint():
+        nonlocal history_csv_rows, removal_csv_rows, monitor_csv_rows
+        save_pilot_checkpoint(
+            checkpoint_path,
+            original_config=original_config,
+            model=model,
+            optimizer=optimizer,
+            method=args.method,
+            kappa=args.kappa,
+            start_macs=start_macs,
+            current_macs=live_current_macs,
+            counted_training_seconds=budget.counted_training_seconds,
+            budget_seconds=args.budget_seconds,
+            epoch=len(history),
+            optimizer_steps=optimizer_steps,
+            removal_history=removal_events,
+            frozen_layer_costs=frozen_costs,
+            history=history,
+            selection=selection,
+            seed=args.manualSeed,
+            monitor_history=monitor_history,
+            solver=solver,
+            metrics=history[-1] if history else {},
+        )
+        history_csv_rows, _ = _write_csv_if_changed(
+            history_path, history, history_csv_rows
+        )
+        removal_csv_rows, _ = _write_csv_if_changed(
+            removal_path, removal_events, removal_csv_rows
+        )
+        monitor_csv_rows, _ = _write_csv_if_changed(
+            monitor_path, monitor_history, monitor_csv_rows
+        )
 
     while not budget.exhausted and epoch < args.max_epochs:
         epoch += 1
@@ -506,6 +616,7 @@ def run(args):
             optimizer_steps += 1
             for key, value in step_metrics.items():
                 aggregate[key].append(value)
+            pruned_in_step = False
             if hard_prune_due(args.method, budget.fraction, hard_done):
                 with budget.measure():
                     embedding = _sample_embedding(model, first_image)
@@ -525,9 +636,35 @@ def run(args):
                     "cumulative_groups_removed": cumulative_removed,
                 })
                 removal_events.append(event)
+                pruned_in_step = True
                 live_current_macs = int(event["achieved_MACs"])
                 if event["target_reached"] and time_to_kappa is None:
                     time_to_kappa = budget.counted_training_seconds
+
+            checkpoint_due = fraction_checkpoint_due(budget.fraction, next_checkpoint)
+            monitor_due = fraction_checkpoint_due(budget.fraction, next_monitor)
+            if pruned_in_step or checkpoint_due or monitor_due or budget.exhausted:
+                save_recovery_checkpoint()
+            if checkpoint_due:
+                next_checkpoint = next_fraction_checkpoint(
+                    budget.fraction, args.checkpoint_every_fraction
+                )
+            if monitor_due:
+                evaluator = monitor_evaluator or _evaluate_psnr_monitor
+                monitor_psnr = evaluator(
+                    model, full_dataset, transform, selected_config,
+                    device, monitor_indices,
+                )
+                monitor_history.append({
+                    "budget_fraction": budget.fraction,
+                    "counted_training_seconds": budget.counted_training_seconds,
+                    "optimizer_steps": optimizer_steps,
+                    "monitor_PSNR": float(monitor_psnr),
+                    "frame_indices": json.dumps(monitor_indices),
+                })
+                next_monitor = next_fraction_checkpoint(
+                    budget.fraction, args.monitor_every_fraction
+                )
             if stop or budget.exhausted:
                 completed_epoch = False
                 break
@@ -568,6 +705,7 @@ def run(args):
                     live_current_macs = int(event["achieved_MACs"])
                     if event["achieved_MACs"] <= target_macs and time_to_kappa is None:
                         time_to_kappa = budget.counted_training_seconds
+                    save_recovery_checkpoint()
 
             # Selection/surgery above is active training work.  If that work
             # crosses 0.9W, perform the shared hard event at this same epoch
@@ -594,26 +732,10 @@ def run(args):
                 live_current_macs = int(event["achieved_MACs"])
                 if event["target_reached"] and time_to_kappa is None:
                     time_to_kappa = budget.counted_training_seconds
+                save_recovery_checkpoint()
 
         embedding = _sample_embedding(model, first_image)
         architecture_metrics = _current_metrics(model, embedding, start_macs, output_hw)
-        quality = {}
-        if args.eval_every > 0 and epoch % args.eval_every == 0:
-            quality_result = evaluate_quality_and_embeddings(
-                model,
-                {**selected_config, "data_path": args.data_path},
-                args.data_path,
-                device=device,
-                expected_frames=len(full_dataset),
-                max_frames=args.max_frames,
-            )
-            quality = {
-                "PSNR": quality_result["PSNR_dB"],
-                "MS_SSIM": quality_result["MS_SSIM"],
-            }
-            final_quality = quality
-            final_embeddings = quality_result["embeddings"]
-            model.train()
         live_current_macs = int(architecture_metrics["current_MACs"])
         row = {
             "method": args.method,
@@ -635,53 +757,63 @@ def run(args):
             "time_target_kappa_first_reached": time_to_kappa if time_to_kappa is not None else "",
             **{key: float(np.mean(values)) for key, values in aggregate.items() if values},
             **architecture_metrics,
-            **quality,
         }
         if args.method == "m3_group_lasso":
             row["lambda"] = args.lambda_gl
         if args.method == "m4_pcd":
             row["tau"] = args.tau
         history.append(row)
-        _write_csv(output_dir / "history.csv", history)
-        _write_csv(output_dir / "removal_events.csv", removal_events)
 
-        if epoch % args.checkpoint_every == 0 or budget.exhausted:
-            save_pilot_checkpoint(
-                checkpoint_path,
-                original_config=original_config,
-                model=model,
-                optimizer=optimizer,
-                method=args.method,
-                kappa=args.kappa,
-                start_macs=start_macs,
-                current_macs=architecture_metrics["current_MACs"],
-                counted_training_seconds=budget.counted_training_seconds,
-                budget_seconds=args.budget_seconds,
-                epoch=epoch,
-                optimizer_steps=optimizer_steps,
-                removal_history=removal_events,
-                frozen_layer_costs=frozen_costs,
-                history=history,
-                selection=selection,
-                seed=args.manualSeed,
-                solver=solver,
-                metrics=row,
+        periodic_evaluation_due = args.eval_every > 0 and epoch % args.eval_every == 0
+        epoch_checkpoint_due = (
+            args.checkpoint_every > 0 and epoch % args.checkpoint_every == 0
+        )
+        fraction_due = fraction_checkpoint_due(budget.fraction, next_checkpoint)
+        if (
+            periodic_evaluation_due or epoch_checkpoint_due or fraction_due
+            or budget.exhausted
+        ):
+            # Recovery state is durable before any evaluator is allowed to run.
+            save_recovery_checkpoint()
+        if fraction_due:
+            next_checkpoint = next_fraction_checkpoint(
+                budget.fraction, args.checkpoint_every_fraction
             )
 
-    if not final_quality or not final_embeddings:
-        quality_result = evaluate_quality_and_embeddings(
-            model,
-            {**selected_config, "data_path": args.data_path},
-            args.data_path,
-            device=device,
-            expected_frames=len(full_dataset),
-            max_frames=args.max_frames,
-        )
-        final_quality = {
-            "PSNR": quality_result["PSNR_dB"],
-            "MS_SSIM": quality_result["MS_SSIM"],
-        }
-        final_embeddings = quality_result["embeddings"]
+        if periodic_evaluation_due:
+            quality_result = quality_evaluator(
+                model,
+                {**selected_config, "data_path": args.data_path},
+                args.data_path,
+                device=device,
+                expected_frames=132,
+                max_frames=0,
+                compute_msssim=True,
+                msssim_device=args.msssim_device,
+            )
+            row["periodic_PSNR"] = quality_result["PSNR_dB"]
+            row["periodic_MS_SSIM"] = quality_result["MS_SSIM"]
+            history_csv_rows = -1  # Row contents changed after the pre-eval checkpoint.
+            model.train()
+
+    # Always make the exact final training state durable before final quality.
+    save_recovery_checkpoint()
+    quality_result = quality_evaluator(
+        model,
+        {**selected_config, "data_path": args.data_path},
+        args.data_path,
+        device=device,
+        expected_frames=132,
+        max_frames=0,
+        compute_msssim=True,
+        msssim_device=args.msssim_device,
+    )
+    final_quality = {
+        "PSNR": quality_result["PSNR_dB"],
+        "MS_SSIM": quality_result["MS_SSIM"],
+        "MS_SSIM_device": quality_result["MS_SSIM_device"],
+    }
+    final_embeddings = quality_result["embeddings"]
 
     embedding = _sample_embedding(model, first_image)
     architecture_metrics = _current_metrics(model, embedding, start_macs, output_hw)
@@ -725,6 +857,8 @@ def run(args):
         "compute_match_tolerance": args.compute_match_tolerance,
         "relative_compute_target_error": relative_compute_target_error,
         "within_compute_tolerance": within_compute_tolerance,
+        "final_evaluation_frames": int(quality_result["frame_count"]),
+        "MS_SSIM_evaluation_device": quality_result["MS_SSIM_device"],
         "final_FPS": fps,
         "timing": timing,
         "final_widths": decoder_layer_widths(model),
@@ -740,11 +874,16 @@ def run(args):
         "platform": platform.platform(),
         "torch": torch.__version__,
         "cuda": torch.version.cuda,
+        "cuda_available": runtime_environment["cuda_available"],
         "device": str(device),
-        "gpu": torch.cuda.get_device_name() if device.type == "cuda" else None,
+        "gpu": runtime_environment["gpu_name"],
+        "MS_SSIM_evaluation_device": quality_result["MS_SSIM_device"],
         "command": " ".join(sys.argv),
         "wallclock_definition": "explicit active training intervals measured by time.perf_counter",
-        "excluded_from_W": ["quality evaluation", "checkpoint I/O", "CSV/JSON writing", "final FPS"],
+        "excluded_from_W": [
+            "quality evaluation", "lightweight PSNR monitoring", "checkpoint I/O",
+            "CSV/JSON writing", "final FPS",
+        ],
     }
     with open(output_dir / "environment.json", "w", encoding="utf-8") as handle:
         json.dump(environment, handle, indent=2)

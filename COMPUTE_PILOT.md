@@ -6,6 +6,19 @@ The new experiment gives every method the same counted active-training
 wall-clock budget `W` and, for M1–M4, the same final decoder-MAC reduction
 target `kappa`, with physical channel removal during training.
 
+## Google Colab setup
+
+Keep Colab's preinstalled CUDA-compatible PyTorch and install only the
+non-PyTorch dependencies:
+
+```bash
+pip install -r requirements-colab.txt
+python -c "from shared.runtime import validate_cuda_environment; validate_cuda_environment()"
+```
+
+Do not use `requirements.txt` in Colab and do not pip-install a replacement
+`torch` or `torchvision` wheel to repair CUDA. Select a GPU runtime instead.
+
 `kappa=0.50` means a 50% reduction in decoder-plus-RGB-head MACs per frame. It
 does **not** mean a 50% parameter reduction. If the start model costs
 `start_MACs`, the target is `start_MACs * (1-kappa)`. Results report actual
@@ -57,6 +70,18 @@ selection metadata, RNG state, frozen compute weights, and PCD solver state.
 Resume reconstructs the smaller architecture before loading tensors and
 rejects changes to method, kappa, seed, base architecture, or W.
 
+The default checkpoint cadence is approximately every `0.10W`, plus every
+physical pruning event and budget exhaustion. The checkpoint is written before
+any evaluator. History CSV is refreshed only with checkpoint persistence, and
+removal events only when changed, reducing Google Drive traffic.
+
+Full-video quality is final-only by default (`--eval_every 0`) and always runs
+once on the exact final weights over all 132 frames. PSNR stays on the model
+device; MS-SSIM defaults to CPU (`--msssim_device cpu`) without moving the
+model. Optional PSNR-only monitoring is enabled with, for example,
+`--monitor_every_fraction 0.10`; it uses eight deterministic frames and is
+excluded from W.
+
 ## No-training preflight
 
 Run the feasibility profiler before committing GPU time. It builds the full
@@ -74,13 +99,27 @@ requested model size, actual parameters, widths, GFLOPs, and compute mismatch.
 
 ## Engineering smoke
 
+Test the real final-evaluation path before training:
+
+```bash
+python smoke_test_compute_pilot_evaluation.py --data_path data/bunny --frames 2
+```
+
+Derive W from one warmup epoch and five measured dense epochs (not 300
+calibration epochs):
+
+```bash
+python calibrate_compute_pilot_budget.py --data_path data/bunny \
+  --output output/compute_pilot/calibration.json
+```
+
 ```bash
 python train_compute_pilot.py --method m4_pcd --budget_seconds 1 --kappa 0.50 \
   --outf output/compute_pilot_smoke --data_path data/bunny --vid bunny \
   --device cuda --max_frames 2 --crop_list 192_384 --batchSize 1 --workers 0 \
   --enc_strds 2 --enc_dim 4_2 --dec_strds 2 --ks 1_1_3 --reduce 2 \
   --modelsize 0.35 --lower_width 2 --conv_type conv pshuffel \
-  --num_blks 1_1 --max_epochs 20 --eval_every 1 --fps_warmup 2 --fps_runs 5
+  --num_blks 1_1 --max_epochs 20 --eval_every 0 --fps_warmup 2 --fps_runs 5
 ```
 
 ## Bunny seed-1 commands
@@ -101,7 +140,9 @@ COMMON="--budget_seconds $W --data_path data/bunny --vid bunny --manualSeed 1 \
  --device cuda --conv_type convnext pshuffel --act gelu --norm none \
  --crop_list 640_1280 --resize_list -1 --enc_strds 5 4 4 2 2 \
  --enc_dim 64_16 --dec_strds 5 4 4 2 2 --ks 0_1_5 --reduce 1.2 \
- --modelsize 1.5 --lower_width 12 --batchSize 2 --lr 0.001"
+ --modelsize 1.5 --lower_width 12 --batchSize 2 --lr 0.001 \
+ --eval_every 0 --monitor_every_fraction 0 \
+ --checkpoint_every_fraction 0.10 --msssim_device cpu"
 
 python train_compute_pilot.py $COMMON --method d_start         --kappa 0.50 --outf output/compute_pilot/k050/d_start/seed1
 python train_compute_pilot.py $COMMON --method d_small_compute --kappa 0.50 --outf output/compute_pilot/k050/d_small_compute/seed1

@@ -152,10 +152,12 @@ class UnifiedInferenceTests(unittest.TestCase):
         result = evaluate_quality_and_embeddings(
             self.model.cpu(), self.config, data_path, device="cpu",
             expected_frames=132, max_frames=1,
+            compute_msssim=True, msssim_device="cpu",
         )
         self.assertEqual(result["frame_count"], 1)
         self.assertTrue(torch.isfinite(torch.tensor(result["PSNR_dB"])))
         self.assertTrue(torch.isfinite(torch.tensor(result["MS_SSIM"])))
+        self.assertEqual(result["MS_SSIM_device"], "cpu")
         compute = measure_decoder_compute(self.model, result["embeddings"][0])
         self.assertGreater(compute["total_GMACs"], 0)
 

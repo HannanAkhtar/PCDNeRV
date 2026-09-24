@@ -77,6 +77,19 @@ def synchronization_callback_for(device):
     return None
 
 
+def next_fraction_checkpoint(current_fraction, cadence):
+    """Return the next W-fraction checkpoint boundary, or infinity if disabled."""
+    cadence = float(cadence)
+    if cadence <= 0:
+        return math.inf
+    current_fraction = max(float(current_fraction), 0.0)
+    return (math.floor(current_fraction / cadence) + 1) * cadence
+
+
+def fraction_checkpoint_due(current_fraction, next_fraction):
+    return float(current_fraction) + 1e-12 >= float(next_fraction)
+
+
 def learning_rate_at_fraction(base_lr, lr_type, fraction):
     """Legacy HNeRV schedule shape parameterized by wall-clock progress."""
     progress = min(max(float(fraction), 0.0), 1.0)

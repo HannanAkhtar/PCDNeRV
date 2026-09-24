@@ -257,6 +257,7 @@ def save_pilot_checkpoint(
     history,
     selection,
     seed,
+    monitor_history=None,
     solver=None,
     metrics=None,
 ):
@@ -290,6 +291,7 @@ def save_pilot_checkpoint(
         "history": list(history),
         "selection": copy.deepcopy(selection),
         "seed": int(seed),
+        "monitor_history": list(monitor_history or []),
         "solver_state": solver_state,
         "metrics": dict(metrics or {}),
         "rng_state": _rng_state(),

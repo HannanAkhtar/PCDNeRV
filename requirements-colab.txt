@@ -1,0 +1,10 @@
+# Preserve Colab's preinstalled CUDA-compatible torch and torchvision builds.
+# Do not add torch or torchvision to this file.
+numpy
+pandas
+matplotlib
+imageio
+pytorch-msssim
+timm
+dahuffman
+tensorboard

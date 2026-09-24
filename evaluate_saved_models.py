@@ -443,8 +443,14 @@ def evaluate_quality_and_embeddings(
     device: str | torch.device = "cpu",
     expected_frames: int = 132,
     max_frames: int = 0,
+    compute_msssim: bool = True,
+    msssim_device: str = "cpu",
 ) -> Dict[str, object]:
     """Recompute all-frame quality and cache one detached embedding per frame."""
+    if msssim_device not in ("cpu", "cuda", "auto"):
+        raise ValueError("msssim_device must be one of: cpu, cuda, auto")
+    if compute_msssim and msssim_device == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA MS-SSIM requested, but CUDA is unavailable")
     args = argparse.Namespace(
         data_path=str(data_path),
         crop_list=str(config.get("crop_list", "640_1280")),
@@ -477,12 +483,31 @@ def evaluate_quality_and_embeddings(
             raise FloatingPointError(f"embedding contains NaN/Inf at frame {index + 1}")
         embeddings.append(embedding)
         psnr_values.extend(float(x) for x in psnr_fn_single(output, img_gt).flatten())
-        msssim_values.extend(float(x) for x in msssim_fn_single(output, img_gt).flatten())
+        if compute_msssim:
+            actual_msssim_device = (
+                output.device.type if msssim_device == "auto" else msssim_device
+            )
+            if actual_msssim_device == "cpu":
+                msssim_output = output.detach().float().cpu()
+                msssim_gt = img_gt.detach().float().cpu()
+            else:
+                msssim_output = output.detach().float().to("cuda")
+                msssim_gt = img_gt.detach().float().to("cuda")
+            msssim_values.extend(
+                float(x) for x in msssim_fn_single(msssim_output, msssim_gt).flatten()
+            )
         resolution = f"{int(img_gt.shape[-2])}x{int(img_gt.shape[-1])}"
 
+    actual_msssim_device = (
+        (device.type if isinstance(device, torch.device) else torch.device(device).type)
+        if msssim_device == "auto" else msssim_device
+    ) if compute_msssim else "disabled"
     return {
         "PSNR_dB": sum(psnr_values) / len(psnr_values),
-        "MS_SSIM": sum(msssim_values) / len(msssim_values),
+        "MS_SSIM": (
+            sum(msssim_values) / len(msssim_values) if compute_msssim else None
+        ),
+        "MS_SSIM_device": actual_msssim_device,
         "embeddings": embeddings,
         "frame_count": count,
         "resolution": resolution,
